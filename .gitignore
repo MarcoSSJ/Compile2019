@@ -1,3 +1,13 @@
-parser\.antlr
-parser\.antlr\
 c.g4
+.idea/
+parser_/.antlr/
+parser_/__pycache__/
+parser/
+parser/tinyc.g4
+parser/tinyc.tokens
+parser/tinyc.interp
+parser/tinycLexer.interp
+parser/tinycLexer.py
+parser/tinycLexer.tokens
+parser/tinycListener.py
+parser/tinycParser.py
