@@ -1,110 +1,125 @@
+
 /*
-BSD License
-Copyright (c) 2013, Tom Everett
-All rights reserved.
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
-3. Neither the name of Tom Everett nor the names of its contributors
-   may be used to endorse or promote products derived from this software
-   without specific prior written permission.
-THIS SOFTWARE IS PROVexp_idED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCexp_idENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+主要参考
+https://cs.wmich.edu/~gupta/teaching/cs4850/sumII06/The%20syntax%20of%20C%20in%20Backus-Naur%20form.htm
+ */
 
 grammar tinyc;
-
-/*
-    http://www.iro.umontreal.ca/~felipe/IFT2030-Automne2002/Complements/tinyc.c
-*//*
- *  <program> ::= <statement>
- *  <statement> ::= "if" <paren_expr> <statement> |
- *                  "if" <paren_expr> <statement> "else" <statement> |
- *                  "while" <paren_expr> <statement> |
- *                  "do" <statement> "while" <paren_expr> ";" |
- *                  "{" { <statement> } "}" |
- *                  <expr> ";" |
- *                  ";"
- *  <paren_expr> ::= "(" <expr> ")"
- *  <expr> ::= <test> | <exp_id> "=" <expr>
- *  <test> ::= <sta_sum> | <sta_sum> "<" <sta_sum>
- *  <sta_sum> ::= <term> | <sta_sum> "+" <term> | <sta_sum> "-" <term>
- *  <term> ::= <exp_id> | <int> | <paren_expr>
- *  <exp_id> ::= "a" | "b" | "c" | "d" | ... | "z"
- *  <int> ::= <an_unsigned_decimal_integer>
-*/
-program
-   : statement +
+/*------------------------parser------------------------------*/
+program //程序入口
+   : (include)* translationUnit +
    ;
 
-statement
-   : 'if' paren_expr statement
-   | 'if' paren_expr statement 'else' statement
-   | 'while' paren_expr statement
-   | 'do' statement 'while' paren_expr ';'
-   | '{' statement* '}'
-   | expr ';'
+include //include文件 TODO:支持define预编译
+   : '#include' '<' LIB '>'
+   | '#include' '\'' LIB '\''
+   ;
+
+translationUnit //非头部文件
+   : function
+   | declaration
+   ;
+
+function //函数代码
+   : typeSpecifier declarator compoundStatement
+   ;
+
+typeSpecifier //类别定义 TODO: 支持更多定义 支持static/const
+    : 'int'
+    | 'char'
+    | 'void'
+    ;
+
+compoundStatement //函数中复合语句
+   : '{' compoundUnit* '}'
+   ;
+
+compoundUnit//单元
+   : declaration
+   | statement
+   ;
+
+declaration // 定义语句
+   : typeSpecifier initDeclaration ';'
+   ;
+
+initDeclaration //初始化部分
+    : initDeclarator (',' initDeclarator)*
+    ;
+
+initDeclarator //初始化单元
+    :   declarator
+    ;
+
+declarator //初始化单元具体内容
+    :   IDENTIFIER
+    |   IDENTIFIER '(' parameterTypeList? ')'
+    ;
+
+parameterTypeList //函数参数列表
+   :  parameterList (',' '...')? ;
+
+parameterList //函数参数列表具体内容
+   :   parameterDeclaration (',' parameterDeclaration)* ;
+
+parameterDeclaration //函数参数列表声明
+   :   typeSpecifier declarator ;
+
+statement //表达式,TODO: 暂时只支持函数和return和{}
+   : '{' statement* '}'
    | ';'
+   |  'return' expression ';' 
+   | expression';'
    ;
 
-paren_expr
-   : '(' expr ')'
+expression //语句表达式
+   : assignmentExpression (',' assignmentExpression)*
    ;
 
-expr
-   : test
-   | exp_id '=' expr
+assignmentExpression //TODO:暂时只支持后缀表达式
+   : postfixExpression
    ;
 
-test
-   : sta_sum
-   | sta_sum '<' sta_sum
+postfixExpression //() [] 为后缀的表达式,TODO:暂时只支持函数
+   : primaryExpression
+   | postfixExpression '(' assignmentExpression ')'
    ;
 
-sta_sum
-   : term
-   | sta_sum '+' term
-   | sta_sum '-' term
+primaryExpression
+   :  IDENTIFIER
+   |  STRING
+   |  CONSTANT
    ;
 
-term
-   : exp_id
-   | integer
-   | paren_expr
-   ;
-
-exp_id
-   : STRING
-   ;
-
-integer
-   : INT
-   ;
+/*------------------------lexer------------------------------*/
+IDENTIFIER
+   :[a-zA-Z_]  (   [a-zA-Z_]  |   [0-9])*;
 
 
 STRING
-   : [a-z]+
+   : '"' CHARSEQ? '"' | '\'' CHAR '\''
    ;
 
+CHARSEQ
+   : CHAR+
+   ;
 
-INT
+CHAR //暂不支持多行
+    :   ~["\\\r\n]
+    |   '\\' ['"?abfnrtv0\\]
+    ;
+
+CONSTANT
    : [0-9] +
    ;
 
-WS
-   : [ \r\n\t] -> skip
-   ;
+LIB : [a-zA-Z]+'.h'?;
+
+/*------------------------注释------------------------------*/
+Whitespace  :   [ \t]+  -> skip;
+
+Newline  :   (   '\r' '\n'?   |   '\n')  -> skip;
+
+BlockComment    :   '/*' .*? '*/'   -> skip;
+
+LineComment   :   '//' ~[\r\n]*   -> skip;
