@@ -20,7 +20,7 @@ translationUnit //非头部文件
    ;
 
 function //函数代码
-   : typeSpecifier declarator compoundStatement
+   : typeSpecifier declarator compoundStatement //TODO:应该有declaration
    ;
 
 typeSpecifier //类别定义 TODO: 支持更多定义 支持static/const
@@ -65,24 +65,36 @@ parameterDeclaration //函数参数列表声明
    :   typeSpecifier declarator ;
 
 statement //表达式,TODO: 暂时只支持函数和return和{}
-   : '{' statement* '}'
-   | ';'
-   |  'return' expression ';' 
-   | expression';'
+   : compoundStatement
+   |  returnStatement
+   | expressionStatement
    ;
+
+returnStatement
+    :  'return' expression? ';'
+    ;
+
+expressionStatement
+    : expression? ';'
+    ;
 
 expression //语句表达式
    : assignmentExpression (',' assignmentExpression)*
    ;
 
-assignmentExpression //TODO:暂时只支持后缀表达式
+assignmentExpression //TODO:暂时只支持后缀表达式,表示一个值
    : postfixExpression
    ;
 
-postfixExpression //() [] 为后缀的表达式,TODO:暂时只支持函数
+postfixExpression //() [] 为后缀的表达式,TODO:暂时只支持函数,只支持接收一个函数参数值
    : primaryExpression
-   | postfixExpression '(' assignmentExpression ')'
+   | postfixExpression '(' argumentExpressionList? ')'
    ;
+
+argumentExpressionList
+    : assignmentExpression
+    | argumentExpressionList ',' assignmentExpression
+    ;
 
 primaryExpression
    :  IDENTIFIER

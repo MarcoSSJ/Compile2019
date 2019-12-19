@@ -84,6 +84,16 @@ class tinycVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by tinycParser#returnStatement.
+    def visitReturnStatement(self, ctx:tinycParser.ReturnStatementContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by tinycParser#expressionStatement.
+    def visitExpressionStatement(self, ctx:tinycParser.ExpressionStatementContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by tinycParser#expression.
     def visitExpression(self, ctx:tinycParser.ExpressionContext):
         return self.visitChildren(ctx)
@@ -96,6 +106,11 @@ class tinycVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by tinycParser#postfixExpression.
     def visitPostfixExpression(self, ctx:tinycParser.PostfixExpressionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by tinycParser#argumentExpressionList.
+    def visitArgumentExpressionList(self, ctx:tinycParser.ArgumentExpressionListContext):
         return self.visitChildren(ctx)
 
 

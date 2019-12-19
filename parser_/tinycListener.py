@@ -143,6 +143,24 @@ class tinycListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by tinycParser#returnStatement.
+    def enterReturnStatement(self, ctx:tinycParser.ReturnStatementContext):
+        pass
+
+    # Exit a parse tree produced by tinycParser#returnStatement.
+    def exitReturnStatement(self, ctx:tinycParser.ReturnStatementContext):
+        pass
+
+
+    # Enter a parse tree produced by tinycParser#expressionStatement.
+    def enterExpressionStatement(self, ctx:tinycParser.ExpressionStatementContext):
+        pass
+
+    # Exit a parse tree produced by tinycParser#expressionStatement.
+    def exitExpressionStatement(self, ctx:tinycParser.ExpressionStatementContext):
+        pass
+
+
     # Enter a parse tree produced by tinycParser#expression.
     def enterExpression(self, ctx:tinycParser.ExpressionContext):
         pass
@@ -167,6 +185,15 @@ class tinycListener(ParseTreeListener):
 
     # Exit a parse tree produced by tinycParser#postfixExpression.
     def exitPostfixExpression(self, ctx:tinycParser.PostfixExpressionContext):
+        pass
+
+
+    # Enter a parse tree produced by tinycParser#argumentExpressionList.
+    def enterArgumentExpressionList(self, ctx:tinycParser.ArgumentExpressionListContext):
+        pass
+
+    # Exit a parse tree produced by tinycParser#argumentExpressionList.
+    def exitArgumentExpressionList(self, ctx:tinycParser.ArgumentExpressionListContext):
         pass
 
 

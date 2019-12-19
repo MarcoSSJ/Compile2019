@@ -16,5 +16,7 @@ def main(filename, output):
     # walker = ParseTreeWalker()
     # walker.walk(my_listener, tree)
     my_visitor.visit(tree)
+    with open(output, "w") as f:
+        f.write(repr(my_visitor.module))
 
-main('test\hello world.c','output.c')
+main('test\hello world.c','output.ll')
