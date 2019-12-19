@@ -1,13 +1,12 @@
 
 /*
-主要参考
 https://cs.wmich.edu/~gupta/teaching/cs4850/sumII06/The%20syntax%20of%20C%20in%20Backus-Naur%20form.htm
  */
 
 grammar tinyc;
 /*------------------------parser------------------------------*/
 program //程序入口
-   : (include)* translationUnit +
+   : (include)* translationUnit+ EOF
    ;
 
 include //include文件 TODO:支持define预编译
@@ -100,26 +99,33 @@ STRING
    : '"' CHARSEQ? '"' | '\'' CHAR '\''
    ;
 
+fragment //WARNING!: 这里必须式fragment 否则由于
+//https://stackoverflow.com/questions/29777778/antlr-4-5-mismatched-input-x-expecting-x
+//https://stackoverflow.com/questions/17715217/antlr4-mismatched-input
+//所述错误识别
 CHARSEQ
    : CHAR+
    ;
 
+fragment
 CHAR //暂不支持多行
     :   ~["\\\r\n]
     |   '\\' ['"?abfnrtv0\\]
     ;
 
 CONSTANT
-   : [0-9] +
+   : [0-9]+
    ;
 
 LIB : [a-zA-Z]+'.h'?;
 
 /*------------------------注释------------------------------*/
-Whitespace  :   [ \t]+  -> skip;
+//Whitespace  :(' ' | '\t')+  -> skip;
+//
+//Newline  :(   '\r' '\n'?   |   '\n')  -> skip;
 
-Newline  :   (   '\r' '\n'?   |   '\n')  -> skip;
+BlockComment    :'/*' .*? '*/'   -> skip;
 
-BlockComment    :   '/*' .*? '*/'   -> skip;
+LineComment   :'//' ~[\r\n]*   -> skip;
 
-LineComment   :   '//' ~[\r\n]*   -> skip;
+WS : [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines
