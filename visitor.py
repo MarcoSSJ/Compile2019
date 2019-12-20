@@ -253,6 +253,8 @@ class c2llvmVisitor(tinycVisitor):
         return self.visitChildren(ctx)
 
     def visitExpression(self, ctx:tinycParser.ExpressionContext):
+        cnt = ctx.getChildCount()
+        val = self.visit(ctx.getChild(0))
         for index in range(2, cnt, 2):
             val = self.visit(ctx.getChild(index))
         return val
