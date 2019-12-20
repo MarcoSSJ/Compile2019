@@ -94,7 +94,8 @@ expression //语句表达式
    ;
 
 assignmentExpression //TODO:暂时只支持后缀表达式,表示一个值
-   : postfixExpression
+   : conditionalExpression
+   | postfixExpression assignmentOperator assignmentExpression   
    ;
 
 postfixExpression //() [] 为后缀的表达式,TODO:暂时只支持函数,只支持接收一个函数参数值
@@ -105,6 +106,72 @@ postfixExpression //() [] 为后缀的表达式,TODO:暂时只支持函数,只�
 argumentExpressionList
     : assignmentExpression
     | argumentExpressionList ',' assignmentExpression
+    ;
+
+multiplicativeExpression
+    :   postfixExpression
+    |   multiplicativeExpression '*' postfixExpression
+    |   multiplicativeExpression '/' postfixExpression
+    |   multiplicativeExpression '%' postfixExpression
+    ;
+
+additiveExpression
+    :   multiplicativeExpression
+    |   additiveExpression '+' multiplicativeExpression
+    |   additiveExpression '-' multiplicativeExpression
+    ;
+
+shiftExpression
+    :   additiveExpression
+    |   shiftExpression '<<' additiveExpression
+    |   shiftExpression '>>' additiveExpression
+    ;
+
+relationalExpression
+    :   shiftExpression
+    |   relationalExpression '<' shiftExpression
+    |   relationalExpression '>' shiftExpression
+    |   relationalExpression '<=' shiftExpression
+    |   relationalExpression '>=' shiftExpression
+    ;
+
+equalityExpression
+    :   relationalExpression
+    |   equalityExpression '==' relationalExpression
+    |   equalityExpression '!=' relationalExpression
+    ;
+
+andExpression
+    :   equalityExpression
+    |   andExpression '&' equalityExpression
+    ;
+
+exclusiveOrExpression
+    :   andExpression
+    |   exclusiveOrExpression '^' andExpression
+    ;
+
+inclusiveOrExpression
+    :   exclusiveOrExpression
+    |   inclusiveOrExpression '|' exclusiveOrExpression
+    ;
+
+logicalAndExpression
+    :   inclusiveOrExpression
+    |   logicalAndExpression '&&' inclusiveOrExpression
+    ;
+
+logicalOrExpression
+    :   logicalAndExpression
+    |   logicalOrExpression '||' logicalAndExpression
+    ;
+
+conditionalExpression
+    :   logicalOrExpression ('?' expression ':' conditionalExpression)?
+    ;
+
+assignmentOperator
+    :   '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '&=' | '^=' | '|='
     ;
 
 primaryExpression
