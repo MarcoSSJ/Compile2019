@@ -6,6 +6,7 @@ from parser_.tinycParser import tinycParser
 from parser_.tinycVisitor import  tinycVisitor
 from llvmlite import ir
 from util import *
+from SymbolTable import SymbolTable
 # This class defines a complete generic visitor for a parse tree produced by tinycParser.
 
 class c2llvmVisitor(tinycVisitor):
@@ -191,7 +192,6 @@ class c2llvmVisitor(tinycVisitor):
         arg_list.append(arg)
         return arg_list
 
-        return self.visitChildren(ctx)
 
     # Visit a parse tree produced by tinycParser#postfixExpression.
     def visitPostfixExpression(self, ctx:tinycParser.PostfixExpressionContext):

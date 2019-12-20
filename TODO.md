@@ -1,12 +1,12 @@
 目标:
 
-1. helloworld 
+1. ~~helloworld~~ 
 
-   1. 处理#include
-   2.  int main函数体
-   3. 字符串常量
-   4. printf链接调用
-   5. return 0处理
+   1. ~~处理#include~~
+   2.  ~~int main函数体~~
+   3. ~~字符串常量~~
+   4. ~~printf链接调用~~
+   5. ~~return 0处理~~
 
 2. add
 
