@@ -126,6 +126,8 @@ class c2llvmVisitor(tinycVisitor):
                     print('initiaze to ', init_val)
                     print(isinstance(init_val, ir.IntType))
                     # TODO:数组/字符串首地址,自动转换类型
+                    print(type(init_val))
+                    print('help me teacher!!',init_val, addr)
                     self.builder.store(init_val, addr)
             except Exception as e:
                 raise e
@@ -304,18 +306,40 @@ class c2llvmVisitor(tinycVisitor):
                 one = left_exp.type(1)
                 print('one', one)
                 res = self.builder.add(left_exp, one)
-                val = self.builder.store(res, addr)
-                return val, res
+                print('++', addr, res)
+                if addr:
+                    val = self.builder.store(res, addr)
+                print('++', addr)
+                return left_exp, addr
             elif op == '--':
                 one = left_exp.type(1)
                 print('one', one)
                 res = self.builder.sub(left_exp, one)
-                val = self.builder.store(res, addr)
-                return val, res
+                if addr: #++可以放在右值后
+                    val = self.builder.store(res, addr)
+                return left_exp, addr
 
     def visitUnaryExpression(self, ctx:tinycParser.UnaryExpressionContext):
-        return self.visit(ctx.children[0])
-
+        if len(ctx.children) == 1:
+            return self.visit(ctx.children[0])
+        else:
+            text = ctx.children[0].getText()
+            val, addr = self.visit(ctx.unaryExpression())
+            if text == '++':
+                one = LLVMTypes.int(1)
+                res = self.builder.add(val, one)
+                self.builder.store(res, addr)
+                return addr, addr
+            elif text == '--':
+                one = LLVMTypes.int(1)
+                res = self.builder.sub(val, one)
+                self.builder.store(res, addr)
+                return res, addr
+            elif text == '+':
+                return val, None
+            elif text == '-':
+                neg = self.builder.neg(val)
+                return neg, None
     # Visit a parse tree produced by tinycParser#multiplicativeExpression.
     def visitMultiplicativeExpression(self, ctx: tinycParser.MultiplicativeExpressionContext):
         if len(ctx.children) == 1:
