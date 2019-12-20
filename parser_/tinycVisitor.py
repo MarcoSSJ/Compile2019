@@ -119,5 +119,10 @@ class tinycVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by tinycParser#mString.
+    def visitMString(self, ctx:tinycParser.MStringContext):
+        return self.visitChildren(ctx)
+
+
 
 del tinycParser

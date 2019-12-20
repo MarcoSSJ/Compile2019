@@ -55,9 +55,15 @@ class c2llvmVisitor(tinycVisitor):
         self.cur_type = ret_type
         _, func_name, func_type, arg_names = self.visit(ctx.getChild(1))
 
-
-        llvm_func = ir.Function(self.module, func_type, name=func_name)
-        self.builder = ir.IRBuilder(llvm_func.append_basic_block(name=".entry"))
+        val = self.symbol_table.getSymbol(func_name)
+        if val:
+            # TODO 错误处理
+            raise Exception("redefine function error!")
+        else:
+            llvm_func = ir.Function(self.module, func_type, name=func_name)
+            self.symbol_table.addSymbol(func_name, llvm_func)
+            self.builder = ir.IRBuilder(llvm_func.append_basic_block(name=".entry"))
+        self.symbol_table.enterScope()
         for arg, llvm_arg in zip(arg_names, llvm_func.args):
             self.symbol_table.addSymbol(arg, llvm_arg)
 
@@ -214,12 +220,13 @@ class c2llvmVisitor(tinycVisitor):
 
     # Visit a parse tree produced by tinycParser#primaryExpression.
     def visitPrimaryExpression(self, ctx:tinycParser.PrimaryExpressionContext):
-        text = ctx.getText()
         if ctx.IDENTIFIER():
+            text = ctx.getText()
             var = self.symbol_table.getSymbol(text)
             if var and type(var) is ir.Function:
                 return var
-        elif ctx.STRING():
+        elif ctx.mString():
+            text = self.visit(ctx.mString())
             idx = self.constants
             self.constants += 1
             text = text[1:-1]
@@ -234,5 +241,11 @@ class c2llvmVisitor(tinycVisitor):
             arg = self.builder.gep(const, [zero,zero], inbounds=True)
             return arg
         elif ctx.CONSTANT():
+            text = ctx.getText()
             return get_const_from_str('int', text)
 
+    def visitMString(self, ctx:tinycParser.MStringContext):
+        """ 将string或者char里面的\n修改了"""
+        text = ctx.getText()
+        text = formatString(text)
+        return text

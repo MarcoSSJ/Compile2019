@@ -98,7 +98,7 @@ argumentExpressionList
 
 primaryExpression
    :  IDENTIFIER
-   |  STRING
+   |  mString
    |  CONSTANT
    ;
 
@@ -106,6 +106,9 @@ primaryExpression
 IDENTIFIER
    :[a-zA-Z_]  (   [a-zA-Z_]  |   [0-9])*;
 
+mString
+    :STRING
+    ;
 
 STRING
    : '"' CHARSEQ? '"' | '\'' CHAR '\''

@@ -9,74 +9,78 @@ import sys
 def serializedATN():
     with StringIO() as buf:
         buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\30")
-        buf.write("\u00b9\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
+        buf.write("\u00c0\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
         buf.write("\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\4\r\t\r\4\16")
         buf.write("\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4\23\t\23")
-        buf.write("\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\3\2\7\2\60\n")
-        buf.write("\2\f\2\16\2\63\13\2\3\2\6\2\66\n\2\r\2\16\2\67\3\2\3\2")
-        buf.write("\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\5\3D\n\3\3\4\3\4\5\4")
-        buf.write("H\n\4\3\5\3\5\3\5\3\5\3\6\3\6\3\7\3\7\7\7R\n\7\f\7\16")
-        buf.write("\7U\13\7\3\7\3\7\3\b\3\b\5\b[\n\b\3\t\3\t\3\t\3\t\3\n")
-        buf.write("\3\n\3\n\7\nd\n\n\f\n\16\ng\13\n\3\13\3\13\3\f\3\f\3\f")
-        buf.write("\3\f\5\fo\n\f\3\f\5\fr\n\f\3\r\3\r\3\r\5\rw\n\r\3\16\3")
-        buf.write("\16\3\16\7\16|\n\16\f\16\16\16\177\13\16\3\17\3\17\3\17")
-        buf.write("\3\20\3\20\3\20\5\20\u0087\n\20\3\21\3\21\5\21\u008b\n")
-        buf.write("\21\3\21\3\21\3\22\5\22\u0090\n\22\3\22\3\22\3\23\3\23")
-        buf.write("\3\23\7\23\u0097\n\23\f\23\16\23\u009a\13\23\3\24\3\24")
-        buf.write("\3\25\3\25\3\25\3\25\3\25\3\25\5\25\u00a4\n\25\3\25\7")
-        buf.write("\25\u00a7\n\25\f\25\16\25\u00aa\13\25\3\26\3\26\3\26\3")
-        buf.write("\26\3\26\3\26\7\26\u00b2\n\26\f\26\16\26\u00b5\13\26\3")
-        buf.write("\27\3\27\3\27\2\4(*\30\2\4\6\b\n\f\16\20\22\24\26\30\32")
-        buf.write("\34\36 \"$&(*,\2\4\3\2\7\t\3\2\22\24\2\u00b5\2\61\3\2")
-        buf.write("\2\2\4C\3\2\2\2\6G\3\2\2\2\bI\3\2\2\2\nM\3\2\2\2\fO\3")
-        buf.write("\2\2\2\16Z\3\2\2\2\20\\\3\2\2\2\22`\3\2\2\2\24h\3\2\2")
-        buf.write("\2\26q\3\2\2\2\30s\3\2\2\2\32x\3\2\2\2\34\u0080\3\2\2")
-        buf.write("\2\36\u0086\3\2\2\2 \u0088\3\2\2\2\"\u008f\3\2\2\2$\u0093")
-        buf.write("\3\2\2\2&\u009b\3\2\2\2(\u009d\3\2\2\2*\u00ab\3\2\2\2")
-        buf.write(",\u00b6\3\2\2\2.\60\5\4\3\2/.\3\2\2\2\60\63\3\2\2\2\61")
-        buf.write("/\3\2\2\2\61\62\3\2\2\2\62\65\3\2\2\2\63\61\3\2\2\2\64")
-        buf.write("\66\5\6\4\2\65\64\3\2\2\2\66\67\3\2\2\2\67\65\3\2\2\2")
-        buf.write("\678\3\2\2\289\3\2\2\29:\7\2\2\3:\3\3\2\2\2;<\7\3\2\2")
-        buf.write("<=\7\4\2\2=>\7\25\2\2>D\7\5\2\2?@\7\3\2\2@A\7\6\2\2AB")
-        buf.write("\7\25\2\2BD\7\6\2\2C;\3\2\2\2C?\3\2\2\2D\5\3\2\2\2EH\5")
-        buf.write("\b\5\2FH\5\20\t\2GE\3\2\2\2GF\3\2\2\2H\7\3\2\2\2IJ\5\n")
-        buf.write("\6\2JK\5\26\f\2KL\5\f\7\2L\t\3\2\2\2MN\t\2\2\2N\13\3\2")
-        buf.write("\2\2OS\7\n\2\2PR\5\16\b\2QP\3\2\2\2RU\3\2\2\2SQ\3\2\2")
-        buf.write("\2ST\3\2\2\2TV\3\2\2\2US\3\2\2\2VW\7\13\2\2W\r\3\2\2\2")
-        buf.write("X[\5\20\t\2Y[\5\36\20\2ZX\3\2\2\2ZY\3\2\2\2[\17\3\2\2")
-        buf.write("\2\\]\5\n\6\2]^\5\22\n\2^_\7\f\2\2_\21\3\2\2\2`e\5\24")
-        buf.write("\13\2ab\7\r\2\2bd\5\24\13\2ca\3\2\2\2dg\3\2\2\2ec\3\2")
-        buf.write("\2\2ef\3\2\2\2f\23\3\2\2\2ge\3\2\2\2hi\5\26\f\2i\25\3")
-        buf.write("\2\2\2jr\7\22\2\2kl\7\22\2\2ln\7\16\2\2mo\5\30\r\2nm\3")
-        buf.write("\2\2\2no\3\2\2\2op\3\2\2\2pr\7\17\2\2qj\3\2\2\2qk\3\2")
-        buf.write("\2\2r\27\3\2\2\2sv\5\32\16\2tu\7\r\2\2uw\7\20\2\2vt\3")
-        buf.write("\2\2\2vw\3\2\2\2w\31\3\2\2\2x}\5\34\17\2yz\7\r\2\2z|\5")
-        buf.write("\34\17\2{y\3\2\2\2|\177\3\2\2\2}{\3\2\2\2}~\3\2\2\2~\33")
-        buf.write("\3\2\2\2\177}\3\2\2\2\u0080\u0081\5\n\6\2\u0081\u0082")
-        buf.write("\5\26\f\2\u0082\35\3\2\2\2\u0083\u0087\5\f\7\2\u0084\u0087")
-        buf.write("\5 \21\2\u0085\u0087\5\"\22\2\u0086\u0083\3\2\2\2\u0086")
-        buf.write("\u0084\3\2\2\2\u0086\u0085\3\2\2\2\u0087\37\3\2\2\2\u0088")
-        buf.write("\u008a\7\21\2\2\u0089\u008b\5$\23\2\u008a\u0089\3\2\2")
-        buf.write("\2\u008a\u008b\3\2\2\2\u008b\u008c\3\2\2\2\u008c\u008d")
-        buf.write("\7\f\2\2\u008d!\3\2\2\2\u008e\u0090\5$\23\2\u008f\u008e")
-        buf.write("\3\2\2\2\u008f\u0090\3\2\2\2\u0090\u0091\3\2\2\2\u0091")
-        buf.write("\u0092\7\f\2\2\u0092#\3\2\2\2\u0093\u0098\5&\24\2\u0094")
-        buf.write("\u0095\7\r\2\2\u0095\u0097\5&\24\2\u0096\u0094\3\2\2\2")
-        buf.write("\u0097\u009a\3\2\2\2\u0098\u0096\3\2\2\2\u0098\u0099\3")
-        buf.write("\2\2\2\u0099%\3\2\2\2\u009a\u0098\3\2\2\2\u009b\u009c")
-        buf.write("\5(\25\2\u009c\'\3\2\2\2\u009d\u009e\b\25\1\2\u009e\u009f")
-        buf.write("\5,\27\2\u009f\u00a8\3\2\2\2\u00a0\u00a1\f\3\2\2\u00a1")
-        buf.write("\u00a3\7\16\2\2\u00a2\u00a4\5*\26\2\u00a3\u00a2\3\2\2")
-        buf.write("\2\u00a3\u00a4\3\2\2\2\u00a4\u00a5\3\2\2\2\u00a5\u00a7")
-        buf.write("\7\17\2\2\u00a6\u00a0\3\2\2\2\u00a7\u00aa\3\2\2\2\u00a8")
-        buf.write("\u00a6\3\2\2\2\u00a8\u00a9\3\2\2\2\u00a9)\3\2\2\2\u00aa")
-        buf.write("\u00a8\3\2\2\2\u00ab\u00ac\b\26\1\2\u00ac\u00ad\5&\24")
-        buf.write("\2\u00ad\u00b3\3\2\2\2\u00ae\u00af\f\3\2\2\u00af\u00b0")
-        buf.write("\7\r\2\2\u00b0\u00b2\5&\24\2\u00b1\u00ae\3\2\2\2\u00b2")
-        buf.write("\u00b5\3\2\2\2\u00b3\u00b1\3\2\2\2\u00b3\u00b4\3\2\2\2")
-        buf.write("\u00b4+\3\2\2\2\u00b5\u00b3\3\2\2\2\u00b6\u00b7\t\3\2")
-        buf.write("\2\u00b7-\3\2\2\2\24\61\67CGSZenqv}\u0086\u008a\u008f")
-        buf.write("\u0098\u00a3\u00a8\u00b3")
+        buf.write("\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\3\2")
+        buf.write("\7\2\62\n\2\f\2\16\2\65\13\2\3\2\6\28\n\2\r\2\16\29\3")
+        buf.write("\2\3\2\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\3\5\3F\n\3\3\4\3")
+        buf.write("\4\5\4J\n\4\3\5\3\5\3\5\3\5\3\6\3\6\3\7\3\7\7\7T\n\7\f")
+        buf.write("\7\16\7W\13\7\3\7\3\7\3\b\3\b\5\b]\n\b\3\t\3\t\3\t\3\t")
+        buf.write("\3\n\3\n\3\n\7\nf\n\n\f\n\16\ni\13\n\3\13\3\13\3\f\3\f")
+        buf.write("\3\f\3\f\5\fq\n\f\3\f\5\ft\n\f\3\r\3\r\3\r\5\ry\n\r\3")
+        buf.write("\16\3\16\3\16\7\16~\n\16\f\16\16\16\u0081\13\16\3\17\3")
+        buf.write("\17\3\17\3\20\3\20\3\20\5\20\u0089\n\20\3\21\3\21\5\21")
+        buf.write("\u008d\n\21\3\21\3\21\3\22\5\22\u0092\n\22\3\22\3\22\3")
+        buf.write("\23\3\23\3\23\7\23\u0099\n\23\f\23\16\23\u009c\13\23\3")
+        buf.write("\24\3\24\3\25\3\25\3\25\3\25\3\25\3\25\5\25\u00a6\n\25")
+        buf.write("\3\25\7\25\u00a9\n\25\f\25\16\25\u00ac\13\25\3\26\3\26")
+        buf.write("\3\26\3\26\3\26\3\26\7\26\u00b4\n\26\f\26\16\26\u00b7")
+        buf.write("\13\26\3\27\3\27\3\27\5\27\u00bc\n\27\3\30\3\30\3\30\2")
+        buf.write("\4(*\31\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*")
+        buf.write(",.\2\3\3\2\7\t\2\u00bd\2\63\3\2\2\2\4E\3\2\2\2\6I\3\2")
+        buf.write("\2\2\bK\3\2\2\2\nO\3\2\2\2\fQ\3\2\2\2\16\\\3\2\2\2\20")
+        buf.write("^\3\2\2\2\22b\3\2\2\2\24j\3\2\2\2\26s\3\2\2\2\30u\3\2")
+        buf.write("\2\2\32z\3\2\2\2\34\u0082\3\2\2\2\36\u0088\3\2\2\2 \u008a")
+        buf.write("\3\2\2\2\"\u0091\3\2\2\2$\u0095\3\2\2\2&\u009d\3\2\2\2")
+        buf.write("(\u009f\3\2\2\2*\u00ad\3\2\2\2,\u00bb\3\2\2\2.\u00bd\3")
+        buf.write("\2\2\2\60\62\5\4\3\2\61\60\3\2\2\2\62\65\3\2\2\2\63\61")
+        buf.write("\3\2\2\2\63\64\3\2\2\2\64\67\3\2\2\2\65\63\3\2\2\2\66")
+        buf.write("8\5\6\4\2\67\66\3\2\2\289\3\2\2\29\67\3\2\2\29:\3\2\2")
+        buf.write("\2:;\3\2\2\2;<\7\2\2\3<\3\3\2\2\2=>\7\3\2\2>?\7\4\2\2")
+        buf.write("?@\7\25\2\2@F\7\5\2\2AB\7\3\2\2BC\7\6\2\2CD\7\25\2\2D")
+        buf.write("F\7\6\2\2E=\3\2\2\2EA\3\2\2\2F\5\3\2\2\2GJ\5\b\5\2HJ\5")
+        buf.write("\20\t\2IG\3\2\2\2IH\3\2\2\2J\7\3\2\2\2KL\5\n\6\2LM\5\26")
+        buf.write("\f\2MN\5\f\7\2N\t\3\2\2\2OP\t\2\2\2P\13\3\2\2\2QU\7\n")
+        buf.write("\2\2RT\5\16\b\2SR\3\2\2\2TW\3\2\2\2US\3\2\2\2UV\3\2\2")
+        buf.write("\2VX\3\2\2\2WU\3\2\2\2XY\7\13\2\2Y\r\3\2\2\2Z]\5\20\t")
+        buf.write("\2[]\5\36\20\2\\Z\3\2\2\2\\[\3\2\2\2]\17\3\2\2\2^_\5\n")
+        buf.write("\6\2_`\5\22\n\2`a\7\f\2\2a\21\3\2\2\2bg\5\24\13\2cd\7")
+        buf.write("\r\2\2df\5\24\13\2ec\3\2\2\2fi\3\2\2\2ge\3\2\2\2gh\3\2")
+        buf.write("\2\2h\23\3\2\2\2ig\3\2\2\2jk\5\26\f\2k\25\3\2\2\2lt\7")
+        buf.write("\22\2\2mn\7\22\2\2np\7\16\2\2oq\5\30\r\2po\3\2\2\2pq\3")
+        buf.write("\2\2\2qr\3\2\2\2rt\7\17\2\2sl\3\2\2\2sm\3\2\2\2t\27\3")
+        buf.write("\2\2\2ux\5\32\16\2vw\7\r\2\2wy\7\20\2\2xv\3\2\2\2xy\3")
+        buf.write("\2\2\2y\31\3\2\2\2z\177\5\34\17\2{|\7\r\2\2|~\5\34\17")
+        buf.write("\2}{\3\2\2\2~\u0081\3\2\2\2\177}\3\2\2\2\177\u0080\3\2")
+        buf.write("\2\2\u0080\33\3\2\2\2\u0081\177\3\2\2\2\u0082\u0083\5")
+        buf.write("\n\6\2\u0083\u0084\5\26\f\2\u0084\35\3\2\2\2\u0085\u0089")
+        buf.write("\5\f\7\2\u0086\u0089\5 \21\2\u0087\u0089\5\"\22\2\u0088")
+        buf.write("\u0085\3\2\2\2\u0088\u0086\3\2\2\2\u0088\u0087\3\2\2\2")
+        buf.write("\u0089\37\3\2\2\2\u008a\u008c\7\21\2\2\u008b\u008d\5$")
+        buf.write("\23\2\u008c\u008b\3\2\2\2\u008c\u008d\3\2\2\2\u008d\u008e")
+        buf.write("\3\2\2\2\u008e\u008f\7\f\2\2\u008f!\3\2\2\2\u0090\u0092")
+        buf.write("\5$\23\2\u0091\u0090\3\2\2\2\u0091\u0092\3\2\2\2\u0092")
+        buf.write("\u0093\3\2\2\2\u0093\u0094\7\f\2\2\u0094#\3\2\2\2\u0095")
+        buf.write("\u009a\5&\24\2\u0096\u0097\7\r\2\2\u0097\u0099\5&\24\2")
+        buf.write("\u0098\u0096\3\2\2\2\u0099\u009c\3\2\2\2\u009a\u0098\3")
+        buf.write("\2\2\2\u009a\u009b\3\2\2\2\u009b%\3\2\2\2\u009c\u009a")
+        buf.write("\3\2\2\2\u009d\u009e\5(\25\2\u009e\'\3\2\2\2\u009f\u00a0")
+        buf.write("\b\25\1\2\u00a0\u00a1\5,\27\2\u00a1\u00aa\3\2\2\2\u00a2")
+        buf.write("\u00a3\f\3\2\2\u00a3\u00a5\7\16\2\2\u00a4\u00a6\5*\26")
+        buf.write("\2\u00a5\u00a4\3\2\2\2\u00a5\u00a6\3\2\2\2\u00a6\u00a7")
+        buf.write("\3\2\2\2\u00a7\u00a9\7\17\2\2\u00a8\u00a2\3\2\2\2\u00a9")
+        buf.write("\u00ac\3\2\2\2\u00aa\u00a8\3\2\2\2\u00aa\u00ab\3\2\2\2")
+        buf.write("\u00ab)\3\2\2\2\u00ac\u00aa\3\2\2\2\u00ad\u00ae\b\26\1")
+        buf.write("\2\u00ae\u00af\5&\24\2\u00af\u00b5\3\2\2\2\u00b0\u00b1")
+        buf.write("\f\3\2\2\u00b1\u00b2\7\r\2\2\u00b2\u00b4\5&\24\2\u00b3")
+        buf.write("\u00b0\3\2\2\2\u00b4\u00b7\3\2\2\2\u00b5\u00b3\3\2\2\2")
+        buf.write("\u00b5\u00b6\3\2\2\2\u00b6+\3\2\2\2\u00b7\u00b5\3\2\2")
+        buf.write("\2\u00b8\u00bc\7\22\2\2\u00b9\u00bc\5.\30\2\u00ba\u00bc")
+        buf.write("\7\24\2\2\u00bb\u00b8\3\2\2\2\u00bb\u00b9\3\2\2\2\u00bb")
+        buf.write("\u00ba\3\2\2\2\u00bc-\3\2\2\2\u00bd\u00be\7\23\2\2\u00be")
+        buf.write("/\3\2\2\2\25\639EIU\\gpsx\177\u0088\u008c\u0091\u009a")
+        buf.write("\u00a5\u00aa\u00b5\u00bb")
         return buf.getvalue()
 
 
@@ -123,6 +127,7 @@ class tinycParser ( Parser ):
     RULE_postfixExpression = 19
     RULE_argumentExpressionList = 20
     RULE_primaryExpression = 21
+    RULE_mString = 22
 
     ruleNames =  [ "program", "include", "translationUnit", "function", 
                    "typeSpecifier", "compoundStatement", "compoundUnit", 
@@ -130,7 +135,7 @@ class tinycParser ( Parser ):
                    "parameterTypeList", "parameterList", "parameterDeclaration", 
                    "statement", "returnStatement", "expressionStatement", 
                    "expression", "assignmentExpression", "postfixExpression", 
-                   "argumentExpressionList", "primaryExpression" ]
+                   "argumentExpressionList", "primaryExpression", "mString" ]
 
     EOF = Token.EOF
     T__0=1
@@ -215,29 +220,29 @@ class tinycParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 47
+            self.state = 49
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==tinycParser.T__0:
-                self.state = 44
+                self.state = 46
                 self.include()
-                self.state = 49
+                self.state = 51
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 51 
+            self.state = 53 
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
-                self.state = 50
+                self.state = 52
                 self.translationUnit()
-                self.state = 53 
+                self.state = 55 
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not ((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << tinycParser.T__4) | (1 << tinycParser.T__5) | (1 << tinycParser.T__6))) != 0)):
                     break
 
-            self.state = 55
+            self.state = 57
             self.match(tinycParser.EOF)
         except RecognitionException as re:
             localctx.exception = re
@@ -282,30 +287,30 @@ class tinycParser ( Parser ):
         localctx = tinycParser.IncludeContext(self, self._ctx, self.state)
         self.enterRule(localctx, 2, self.RULE_include)
         try:
-            self.state = 65
+            self.state = 67
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,2,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 57
-                self.match(tinycParser.T__0)
-                self.state = 58
-                self.match(tinycParser.T__1)
                 self.state = 59
-                self.match(tinycParser.LIB)
+                self.match(tinycParser.T__0)
                 self.state = 60
+                self.match(tinycParser.T__1)
+                self.state = 61
+                self.match(tinycParser.LIB)
+                self.state = 62
                 self.match(tinycParser.T__2)
                 pass
 
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 61
-                self.match(tinycParser.T__0)
-                self.state = 62
-                self.match(tinycParser.T__3)
                 self.state = 63
-                self.match(tinycParser.LIB)
+                self.match(tinycParser.T__0)
                 self.state = 64
+                self.match(tinycParser.T__3)
+                self.state = 65
+                self.match(tinycParser.LIB)
+                self.state = 66
                 self.match(tinycParser.T__3)
                 pass
 
@@ -358,18 +363,18 @@ class tinycParser ( Parser ):
         localctx = tinycParser.TranslationUnitContext(self, self._ctx, self.state)
         self.enterRule(localctx, 4, self.RULE_translationUnit)
         try:
-            self.state = 69
+            self.state = 71
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,3,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 67
+                self.state = 69
                 self.function()
                 pass
 
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 68
+                self.state = 70
                 self.declaration()
                 pass
 
@@ -427,11 +432,11 @@ class tinycParser ( Parser ):
         self.enterRule(localctx, 6, self.RULE_function)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 71
-            self.typeSpecifier()
-            self.state = 72
-            self.declarator()
             self.state = 73
+            self.typeSpecifier()
+            self.state = 74
+            self.declarator()
+            self.state = 75
             self.compoundStatement()
         except RecognitionException as re:
             localctx.exception = re
@@ -476,7 +481,7 @@ class tinycParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 75
+            self.state = 77
             _la = self._input.LA(1)
             if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << tinycParser.T__4) | (1 << tinycParser.T__5) | (1 << tinycParser.T__6))) != 0)):
                 self._errHandler.recoverInline(self)
@@ -532,19 +537,19 @@ class tinycParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 77
+            self.state = 79
             self.match(tinycParser.T__7)
-            self.state = 81
+            self.state = 83
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << tinycParser.T__4) | (1 << tinycParser.T__5) | (1 << tinycParser.T__6) | (1 << tinycParser.T__7) | (1 << tinycParser.T__9) | (1 << tinycParser.T__14) | (1 << tinycParser.IDENTIFIER) | (1 << tinycParser.STRING) | (1 << tinycParser.CONSTANT))) != 0):
-                self.state = 78
+                self.state = 80
                 self.compoundUnit()
-                self.state = 83
+                self.state = 85
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 84
+            self.state = 86
             self.match(tinycParser.T__8)
         except RecognitionException as re:
             localctx.exception = re
@@ -594,17 +599,17 @@ class tinycParser ( Parser ):
         localctx = tinycParser.CompoundUnitContext(self, self._ctx, self.state)
         self.enterRule(localctx, 12, self.RULE_compoundUnit)
         try:
-            self.state = 88
+            self.state = 90
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [tinycParser.T__4, tinycParser.T__5, tinycParser.T__6]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 86
+                self.state = 88
                 self.declaration()
                 pass
             elif token in [tinycParser.T__7, tinycParser.T__9, tinycParser.T__14, tinycParser.IDENTIFIER, tinycParser.STRING, tinycParser.CONSTANT]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 87
+                self.state = 89
                 self.statement()
                 pass
             else:
@@ -659,11 +664,11 @@ class tinycParser ( Parser ):
         self.enterRule(localctx, 14, self.RULE_declaration)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 90
-            self.typeSpecifier()
-            self.state = 91
-            self.initDeclaration()
             self.state = 92
+            self.typeSpecifier()
+            self.state = 93
+            self.initDeclaration()
+            self.state = 94
             self.match(tinycParser.T__9)
         except RecognitionException as re:
             localctx.exception = re
@@ -714,17 +719,17 @@ class tinycParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 94
+            self.state = 96
             self.initDeclarator()
-            self.state = 99
+            self.state = 101
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==tinycParser.T__10:
-                self.state = 95
+                self.state = 97
                 self.match(tinycParser.T__10)
-                self.state = 96
+                self.state = 98
                 self.initDeclarator()
-                self.state = 101
+                self.state = 103
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -773,7 +778,7 @@ class tinycParser ( Parser ):
         self.enterRule(localctx, 18, self.RULE_initDeclarator)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 102
+            self.state = 104
             self.declarator()
         except RecognitionException as re:
             localctx.exception = re
@@ -823,30 +828,30 @@ class tinycParser ( Parser ):
         self.enterRule(localctx, 20, self.RULE_declarator)
         self._la = 0 # Token type
         try:
-            self.state = 111
+            self.state = 113
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,8,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 104
+                self.state = 106
                 self.match(tinycParser.IDENTIFIER)
                 pass
 
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 105
+                self.state = 107
                 self.match(tinycParser.IDENTIFIER)
-                self.state = 106
-                self.match(tinycParser.T__11)
                 self.state = 108
+                self.match(tinycParser.T__11)
+                self.state = 110
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << tinycParser.T__4) | (1 << tinycParser.T__5) | (1 << tinycParser.T__6))) != 0):
-                    self.state = 107
+                    self.state = 109
                     self.parameterTypeList()
 
 
-                self.state = 110
+                self.state = 112
                 self.match(tinycParser.T__12)
                 pass
 
@@ -897,15 +902,15 @@ class tinycParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 113
+            self.state = 115
             self.parameterList()
-            self.state = 116
+            self.state = 118
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==tinycParser.T__10:
-                self.state = 114
+                self.state = 116
                 self.match(tinycParser.T__10)
-                self.state = 115
+                self.state = 117
                 self.match(tinycParser.T__13)
 
 
@@ -957,18 +962,18 @@ class tinycParser ( Parser ):
         self.enterRule(localctx, 24, self.RULE_parameterList)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 118
+            self.state = 120
             self.parameterDeclaration()
-            self.state = 123
+            self.state = 125
             self._errHandler.sync(self)
             _alt = self._interp.adaptivePredict(self._input,10,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt==1:
-                    self.state = 119
+                    self.state = 121
                     self.match(tinycParser.T__10)
-                    self.state = 120
+                    self.state = 122
                     self.parameterDeclaration() 
-                self.state = 125
+                self.state = 127
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,10,self._ctx)
 
@@ -1021,9 +1026,9 @@ class tinycParser ( Parser ):
         self.enterRule(localctx, 26, self.RULE_parameterDeclaration)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 126
+            self.state = 128
             self.typeSpecifier()
-            self.state = 127
+            self.state = 129
             self.declarator()
         except RecognitionException as re:
             localctx.exception = re
@@ -1077,22 +1082,22 @@ class tinycParser ( Parser ):
         localctx = tinycParser.StatementContext(self, self._ctx, self.state)
         self.enterRule(localctx, 28, self.RULE_statement)
         try:
-            self.state = 132
+            self.state = 134
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [tinycParser.T__7]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 129
+                self.state = 131
                 self.compoundStatement()
                 pass
             elif token in [tinycParser.T__14]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 130
+                self.state = 132
                 self.returnStatement()
                 pass
             elif token in [tinycParser.T__9, tinycParser.IDENTIFIER, tinycParser.STRING, tinycParser.CONSTANT]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 131
+                self.state = 133
                 self.expressionStatement()
                 pass
             else:
@@ -1144,17 +1149,17 @@ class tinycParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 134
-            self.match(tinycParser.T__14)
             self.state = 136
+            self.match(tinycParser.T__14)
+            self.state = 138
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << tinycParser.IDENTIFIER) | (1 << tinycParser.STRING) | (1 << tinycParser.CONSTANT))) != 0):
-                self.state = 135
+                self.state = 137
                 self.expression()
 
 
-            self.state = 138
+            self.state = 140
             self.match(tinycParser.T__9)
         except RecognitionException as re:
             localctx.exception = re
@@ -1202,15 +1207,15 @@ class tinycParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 141
+            self.state = 143
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << tinycParser.IDENTIFIER) | (1 << tinycParser.STRING) | (1 << tinycParser.CONSTANT))) != 0):
-                self.state = 140
+                self.state = 142
                 self.expression()
 
 
-            self.state = 143
+            self.state = 145
             self.match(tinycParser.T__9)
         except RecognitionException as re:
             localctx.exception = re
@@ -1261,17 +1266,17 @@ class tinycParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 145
+            self.state = 147
             self.assignmentExpression()
-            self.state = 150
+            self.state = 152
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==tinycParser.T__10:
-                self.state = 146
+                self.state = 148
                 self.match(tinycParser.T__10)
-                self.state = 147
+                self.state = 149
                 self.assignmentExpression()
-                self.state = 152
+                self.state = 154
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -1320,7 +1325,7 @@ class tinycParser ( Parser ):
         self.enterRule(localctx, 36, self.RULE_assignmentExpression)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 153
+            self.state = 155
             self.postfixExpression(0)
         except RecognitionException as re:
             localctx.exception = re
@@ -1378,10 +1383,10 @@ class tinycParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 156
+            self.state = 158
             self.primaryExpression()
             self._ctx.stop = self._input.LT(-1)
-            self.state = 166
+            self.state = 168
             self._errHandler.sync(self)
             _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
@@ -1391,23 +1396,23 @@ class tinycParser ( Parser ):
                     _prevctx = localctx
                     localctx = tinycParser.PostfixExpressionContext(self, _parentctx, _parentState)
                     self.pushNewRecursionContext(localctx, _startState, self.RULE_postfixExpression)
-                    self.state = 158
+                    self.state = 160
                     if not self.precpred(self._ctx, 1):
                         from antlr4.error.Errors import FailedPredicateException
                         raise FailedPredicateException(self, "self.precpred(self._ctx, 1)")
-                    self.state = 159
-                    self.match(tinycParser.T__11)
                     self.state = 161
+                    self.match(tinycParser.T__11)
+                    self.state = 163
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
                     if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << tinycParser.IDENTIFIER) | (1 << tinycParser.STRING) | (1 << tinycParser.CONSTANT))) != 0):
-                        self.state = 160
+                        self.state = 162
                         self.argumentExpressionList(0)
 
 
-                    self.state = 163
+                    self.state = 165
                     self.match(tinycParser.T__12) 
-                self.state = 168
+                self.state = 170
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
 
@@ -1462,10 +1467,10 @@ class tinycParser ( Parser ):
         self.enterRecursionRule(localctx, 40, self.RULE_argumentExpressionList, _p)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 170
+            self.state = 172
             self.assignmentExpression()
             self._ctx.stop = self._input.LT(-1)
-            self.state = 177
+            self.state = 179
             self._errHandler.sync(self)
             _alt = self._interp.adaptivePredict(self._input,17,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
@@ -1475,15 +1480,15 @@ class tinycParser ( Parser ):
                     _prevctx = localctx
                     localctx = tinycParser.ArgumentExpressionListContext(self, _parentctx, _parentState)
                     self.pushNewRecursionContext(localctx, _startState, self.RULE_argumentExpressionList)
-                    self.state = 172
+                    self.state = 174
                     if not self.precpred(self._ctx, 1):
                         from antlr4.error.Errors import FailedPredicateException
                         raise FailedPredicateException(self, "self.precpred(self._ctx, 1)")
-                    self.state = 173
+                    self.state = 175
                     self.match(tinycParser.T__10)
-                    self.state = 174
+                    self.state = 176
                     self.assignmentExpression() 
-                self.state = 179
+                self.state = 181
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,17,self._ctx)
 
@@ -1505,8 +1510,9 @@ class tinycParser ( Parser ):
         def IDENTIFIER(self):
             return self.getToken(tinycParser.IDENTIFIER, 0)
 
-        def STRING(self):
-            return self.getToken(tinycParser.STRING, 0)
+        def mString(self):
+            return self.getTypedRuleContext(tinycParser.MStringContext,0)
+
 
         def CONSTANT(self):
             return self.getToken(tinycParser.CONSTANT, 0)
@@ -1535,16 +1541,74 @@ class tinycParser ( Parser ):
 
         localctx = tinycParser.PrimaryExpressionContext(self, self._ctx, self.state)
         self.enterRule(localctx, 42, self.RULE_primaryExpression)
-        self._la = 0 # Token type
+        try:
+            self.state = 185
+            self._errHandler.sync(self)
+            token = self._input.LA(1)
+            if token in [tinycParser.IDENTIFIER]:
+                self.enterOuterAlt(localctx, 1)
+                self.state = 182
+                self.match(tinycParser.IDENTIFIER)
+                pass
+            elif token in [tinycParser.STRING]:
+                self.enterOuterAlt(localctx, 2)
+                self.state = 183
+                self.mString()
+                pass
+            elif token in [tinycParser.CONSTANT]:
+                self.enterOuterAlt(localctx, 3)
+                self.state = 184
+                self.match(tinycParser.CONSTANT)
+                pass
+            else:
+                raise NoViableAltException(self)
+
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+
+    class MStringContext(ParserRuleContext):
+
+        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
+            super().__init__(parent, invokingState)
+            self.parser = parser
+
+        def STRING(self):
+            return self.getToken(tinycParser.STRING, 0)
+
+        def getRuleIndex(self):
+            return tinycParser.RULE_mString
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterMString" ):
+                listener.enterMString(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitMString" ):
+                listener.exitMString(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitMString" ):
+                return visitor.visitMString(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+
+
+    def mString(self):
+
+        localctx = tinycParser.MStringContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 44, self.RULE_mString)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 180
-            _la = self._input.LA(1)
-            if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << tinycParser.IDENTIFIER) | (1 << tinycParser.STRING) | (1 << tinycParser.CONSTANT))) != 0)):
-                self._errHandler.recoverInline(self)
-            else:
-                self._errHandler.reportMatch(self)
-                self.consume()
+            self.state = 187
+            self.match(tinycParser.STRING)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)

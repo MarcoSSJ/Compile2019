@@ -206,3 +206,12 @@ class tinycListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by tinycParser#mString.
+    def enterMString(self, ctx:tinycParser.MStringContext):
+        pass
+
+    # Exit a parse tree produced by tinycParser#mString.
+    def exitMString(self, ctx:tinycParser.MStringContext):
+        pass
+
+

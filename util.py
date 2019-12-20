@@ -28,18 +28,18 @@ class LLVMTypes(object):
     double = float64
     void = void
     ascii_mapping = {
-        '\\a': 7,
-        '\\b': 8,
-        '\\f': 12,
-        '\\n': 10,
-        '\\r': 13,
-        '\\t': 9,
-        '\\v': 11,
-        '\\\\': 92,
-        '\\?': 63,
-        "\\'": 39,
-        '\\"': 34,
-        '\\0': 0,
+        '\\a': '\a',
+        '\\b': '\b',
+        '\\f': '\f',
+        '\\n': '\n',
+        '\\r': '\r',
+        '\\t': '\t',
+        '\\v': '\v',
+        '\\\\': '\\',
+        '\\?': '\?',
+        "\\'": '\'',
+        '\\"': '\"',
+        '\\0': '\0',
     }
     @classmethod
     def to_lltype(cls, typeStr):
@@ -95,3 +95,10 @@ def get_const_from_str(ctype, const_value):
             raise Exception(msg="No known conversion: '%s' to '%s'" % (const_value, ctype))
     else:
         raise SyntaxError(msg="get_const_from_str doesn't support const_value which is a " + str(type(const_value)))
+
+def formatString(s:str):
+    """将\n之类的替换"""
+    mapping = LLVMTypes.ascii_mapping
+    for i in mapping.keys():
+        s = s.replace(i, mapping[i])
+    return s
