@@ -39,12 +39,10 @@ class c2llvmVisitor(tinycVisitor):
             self.visit(ctx.getChild(index))
         return
 
-
     # Visit a parse tree produced by tinycParser#include.
     def visitInclude(self, ctx:tinycParser.IncludeContext):
         print('visit include', ctx.getChild(2).getText())
         return self.visitChildren(ctx)
-
 
     # Visit a parse tree produced by tinycParser#translationUnit.
     def visitTranslationUnit(self, ctx:tinycParser.TranslationUnitContext):
@@ -89,11 +87,9 @@ class c2llvmVisitor(tinycVisitor):
             ##TODO error
             pass
 
-
     # Visit a parse tree produced by tinycParser#compoundStatement.
     def visitCompoundStatement(self, ctx:tinycParser.CompoundStatementContext):
         return self.visitChildren(ctx)
-
 
     # Visit a parse tree produced by tinycParser#compoundUnit.
     def visitCompoundUnit(self, ctx:tinycParser.CompoundUnitContext):
@@ -234,7 +230,6 @@ class c2llvmVisitor(tinycVisitor):
         else:
             return self.visit(ctx.parameterList()), False
 
-
     # Visit a parse tree produced by tinycParser#parameterList.
     def visitParameterList(self, ctx:tinycParser.ParameterListContext):
         ### C是从右向左压参的
@@ -253,16 +248,11 @@ class c2llvmVisitor(tinycVisitor):
         _, argname, argtype, _ = self.visit(ctx.declarator())
         return argname, argtype
 
-
     # Visit a parse tree produced by tinycParser#statement.
     def visitStatement(self, ctx:tinycParser.StatementContext):
         return self.visitChildren(ctx)
 
-
-    # Visit a parse tree produced by tinycParser#expression.
     def visitExpression(self, ctx:tinycParser.ExpressionContext):
-        cnt = ctx.getChildCount()
-        val = self.visit(ctx.getChild(0))
         for index in range(2, cnt, 2):
             val = self.visit(ctx.getChild(index))
         return val
@@ -294,11 +284,142 @@ class c2llvmVisitor(tinycVisitor):
                 if len(ctx.children) == 4:
                     args = self.visit(ctx.argumentExpressionList())
                 #TODO 类型转换
-                print('left' , left_exp)
-                print('args' , args)
+                print('left', left_exp)
+                print('args', args)
                 return self.builder.call(left_exp, args)
 
+    # Visit a parse tree produced by tinycParser#assignmentExpression.
+    def visitAssignmentExpression(self, ctx:tinycParser.AssignmentExpressionContext):
+        return self.visitChildren(ctx)
 
+    # Visit a parse tree produced by tinycParser#multiplicativeExpression.
+    def visitMultiplicativeExpression(self, ctx: tinycParser.MultiplicativeExpressionContext):
+        if len(ctx.children) == 1:
+            return self.visit(ctx.postfixExpression())
+        else:
+            lhs = self.visit(ctx.children[0])
+            rhs = self.visit(ctx.children[2])
+            op = ctx.children[1].getText()
+            if op == '*':
+                return self.builder.mul(lhs, rhs)
+            elif op == '/':
+                return self.builder.sdiv(lhs, rhs)
+            else:
+                return self.builder.srem(lhs, rhs)
+
+    # Visit a parse tree produced by tinycParser#additiveExpression.
+    def visitAdditiveExpression(self, ctx: tinycParser.AdditiveExpressionContext):
+        if len(ctx.children) == 1:
+            return self.visit(ctx.multiplicativeExpression())
+        else:
+            lhs = self.visit(ctx.children[0])
+            rhs = self.visit(ctx.children[2])
+            op = ctx.children[1].getText()
+            if op == '+':
+                return self.builder.add(lhs, rhs)
+            else:
+                return self.builder.sub(lhs, rhs)
+
+    # Visit a parse tree produced by tinycParser#shiftExpression.
+    def visitShiftExpression(self, ctx: tinycParser.ShiftExpressionContext):
+        if len(ctx.children) == 1:
+            return self.visit(ctx.additiveExpression())
+        else:
+            lhs = self.visit(ctx.children[0])
+            rhs = self.visit(ctx.children[2])
+            op = ctx.children[1].getText()
+            if op == '<<':
+                return self.builder.shl(lhs, rhs)
+            else:
+                return self.builder.ashr(lhs, rhs)
+
+    # Visit a parse tree produced by tinycParser#relationalExpression.
+    def visitRelationalExpression(self, ctx: tinycParser.RelationalExpressionContext):
+        if len(ctx.children) == 1:
+            return self.visit(ctx.shiftExpression())
+        else:
+            lhs = self.visit(ctx.children[0])
+            rhs = self.visit(ctx.children[2])
+            op = ctx.children[1].getText()
+            return self.builder.icmp_signed(cmpop=op, lhs=lhs, rhs=rhs)
+
+    # Visit a parse tree produced by tinycParser#equalityExpression.
+    def visitEqualityExpression(self, ctx: tinycParser.EqualityExpressionContext):
+        if len(ctx.children) == 1:
+            return self.visit(ctx.relationalExpression())
+        else:
+            lhs = self.visit(ctx.children[0])
+            rhs = self.visit(ctx.children[2])
+            op = ctx.children[1].getText()
+            return self.builder.icmp_signed(cmpop=op, lhs=lhs, rhs=rhs)
+
+    # Visit a parse tree produced by tinycParser#andExpression.
+    def visitAndExpression(self, ctx: tinycParser.AndExpressionContext):
+        if len(ctx.children) == 1:
+            return self.visit(ctx.equalityExpression())
+        else:
+            lhs = self.visit(ctx.children[0])
+            rhs = self.visit(ctx.children[2])
+            op = ctx.children[1].getText()
+            return self.builder.and_(lhs, rhs)
+
+    # Visit a parse tree produced by tinycParser#exclusiveOrExpression.
+    def visitExclusiveOrExpression(self, ctx: tinycParser.ExclusiveOrExpressionContext):
+        if len(ctx.children) == 1:
+            return self.visit(ctx.andExpression())
+        else:
+            lhs = self.visit(ctx.children[0])
+            rhs = self.visit(ctx.children[2])
+            op = ctx.children[1].getText()
+            return self.builder.xor(lhs, rhs)
+
+    # Visit a parse tree produced by tinycParser#inclusiveOrExpression.
+    def visitInclusiveOrExpression(self, ctx: tinycParser.InclusiveOrExpressionContext):
+        if len(ctx.children) == 1:
+            return self.visit(ctx.exclusiveOrExpression())
+        else:
+            lhs = self.visit(ctx.children[0])
+            rhs = self.visit(ctx.children[2])
+            op = ctx.children[1].getText()
+            return self.builder.or_(lhs, rhs)
+
+    # Visit a parse tree produced by tinycParser#logicalAndExpression.
+    def visitLogicalAndExpression(self, ctx: tinycParser.LogicalAndExpressionContext):
+        if len(ctx.children) == 1:
+            return self.visit(ctx.inclusiveOrExpression())
+        else:
+            lhs = ir.IntType(1)(self.visit(ctx.children[0]))
+            rhs = ir.IntType(1)(self.visit(ctx.children[2]))
+            result = self.builder.alloca(ir.IntType(1))
+            with self.builder.if_else(lhs) as (then, otherwise):
+                with then:
+                    self.builder.store(rhs, result)
+                with otherwise:
+                    self.builder.store(ir.IntType(1)(0), result)
+            return self.builder.load(result)
+
+    # Visit a parse tree produced by tinycParser#logicalOrExpression.
+    def visitLogicalOrExpression(self, ctx: tinycParser.LogicalOrExpressionContext):
+        if len(ctx.children) == 1:
+            return self.visit(ctx.logicalAndExpression())
+        else:
+            lhs = ir.IntType(1)(self.visit(ctx.children[0]))
+            rhs = ir.IntType(1)(self.visit(ctx.children[2]))
+            result = self.builder.alloca(ir.IntType(1))
+            with self.builder.if_else(lhs) as (then, otherwise):
+                with then:
+                    self.builder.store(ir.IntType(1)(0), result)
+                with otherwise:
+                    self.builder.store(rhs, result)
+            return self.builder.load(result)
+
+    # Visit a parse tree produced by tinycParser#conditionalExpression.
+    def visitConditionalExpression(self, ctx: tinycParser.ConditionalExpressionContext):
+        return self.visit(ctx.logicalOrExpression())
+
+    # Visit a parse tree produced by tinycParser#assignmentOperator.
+    def visitAssignmentOperator(self, ctx: tinycParser.AssignmentOperatorContext):
+        return ctx.getText()
 
     # Visit a parse tree produced by tinycParser#primaryExpression.
     def visitPrimaryExpression(self, ctx:tinycParser.PrimaryExpressionContext):

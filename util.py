@@ -72,7 +72,6 @@ def get_const_from_str(ctype, const_value):
             ctype = LLVMTypes.to_str2lltype(const_value)
         else:
             ctype = LLVMTypes.to_lltype(ctype)
-
         if ctype == LLVMTypes.char:
             if len(const_value) == 3:  # 若const_value形如'3',
                 return LLVMTypes.char(ord(str(const_value[1:-1])))  # 则将ASCII字符转成对应的整数存储
