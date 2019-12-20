@@ -326,12 +326,12 @@ class c2llvmVisitor(tinycVisitor):
             text = ctx.children[0].getText()
             val, addr = self.visit(ctx.unaryExpression())
             if text == '++':
-                one = LLVMTypes.int(1)
+                one = val.type(1)
                 res = self.builder.add(val, one)
                 self.builder.store(res, addr)
-                return addr, addr
+                return res, addr
             elif text == '--':
-                one = LLVMTypes.int(1)
+                one = val.type(1)
                 res = self.builder.sub(val, one)
                 self.builder.store(res, addr)
                 return res, addr
