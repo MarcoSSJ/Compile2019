@@ -1,6 +1,7 @@
 # 用于帮助编译器
 from llvmlite import ir
 import codecs
+from parser_.tinycParser import tinycParser
 
 class LLVMTypes(object):
     int32 = ir.IntType(32)
@@ -42,8 +43,8 @@ class LLVMTypes(object):
         '\\0': '\0',
     }
     @classmethod
-    def to_lltype(cls, typeStr):
-        return cls.typeStrMap[typeStr]
+    def to_lltype(cls, type_str):
+        return cls.typeStrMap[type_str]
 
     @classmethod
     def to_str2lltype(cls, s):
@@ -71,6 +72,7 @@ def get_const_from_str(ctype, const_value):
             ctype = LLVMTypes.to_str2lltype(const_value)
         else:
             ctype = LLVMTypes.to_lltype(ctype)
+
         if ctype == LLVMTypes.char:
             if len(const_value) == 3:  # 若const_value形如'3',
                 return LLVMTypes.char(ord(str(const_value[1:-1])))  # 则将ASCII字符转成对应的整数存储
@@ -86,6 +88,9 @@ def get_const_from_str(ctype, const_value):
             return ctype(float(const_value))
         elif ctype in [LLVMTypes.short, LLVMTypes.int]:
             return ctype(int(const_value))
+        elif ctype == LLVMTypes.bool:
+            print('I m bool')
+            return ctype(bool(const_value))
         elif isinstance(ctype, ir.ArrayType) and ctype.element == LLVMTypes.char:
             # string
             str_val = const_value + '\0'
@@ -94,7 +99,7 @@ def get_const_from_str(ctype, const_value):
             # TODO
             raise Exception(msg="No known conversion: '%s' to '%s'" % (const_value, ctype))
     else:
-        raise SyntaxError(msg="get_const_from_str doesn't support const_value which is a " + str(type(const_value)))
+        raise SyntaxError(msg="get_const_from_str doesn't support const_value which is a " + str(const_value))
 
 def formatString(s:str):
     """将\n之类的替换"""
@@ -102,3 +107,10 @@ def formatString(s:str):
     for i in mapping.keys():
         s = s.replace(i, mapping[i])
     return s
+
+
+def getRuleName(node):
+    if hasattr(node, 'getRuleIndex'):
+        return tinycParser.ruleNames[node.getRuleIndex()]
+    else:
+        return 'None'

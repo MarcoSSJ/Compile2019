@@ -19,4 +19,4 @@ def main(filename, output):
     with open(output, "w") as f:
         f.write(repr(my_visitor.module))
 
-main('test\subhelloworld.c','output.ll')
+main('test\iterationhelloworld.c','output.ll')

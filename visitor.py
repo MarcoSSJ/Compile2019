@@ -11,6 +11,7 @@ from SymbolTable import SymbolTable
 
 class c2llvmVisitor(tinycVisitor):
 
+
     def __init__(self):
         super(c2llvmVisitor, self).__init__()
         self.module = ir.Module()
@@ -109,6 +110,53 @@ class c2llvmVisitor(tinycVisitor):
     # Visit a parse tree produced by tinycParser#initDeclarator.
     def visitInitDeclarator(self, ctx:tinycParser.InitDeclaratorContext):
         return self.visitChildren(ctx)
+
+
+
+    def visitIterationStatement(self, ctx:tinycParser.IterationStatementContext):
+        self.symbol_table.enterScope()
+        prefix = self.builder.block.name
+
+        keyword = ctx.getChild(0).getText()
+        if keyword == 'for':
+            #初始化语句
+            child_idx = 2
+            if getRuleName(ctx.children[child_idx]) == 'expression':
+                self.visit(ctx.children[child_idx])
+                child_idx += 2
+            else:
+                child_idx += 1
+
+            cond_block = self.builder.append_basic_block(name=prefix+".loop_cond")
+            loop_block = self.builder.append_basic_block(name=prefix+".loop_body")
+            update_block = self.builder.append_basic_block(name=prefix+".loop_update")
+            end_block = self.builder.append_basic_block(name=prefix+".loop_end")
+
+            self.builder.branch(cond_block)
+            self.builder.position_at_start(cond_block)
+
+            if getRuleName(ctx.children[child_idx]) == 'expression':
+                cond_val = self.visit(ctx.children[child_idx])
+                print('cond_val',cond_val)
+                converted_cond = LLVMTypes.bool(cond_val)
+                self.builder.cbranch(converted_cond, loop_block, end_block)
+                child_idx += 2
+            else:
+                child_idx += 1
+                self.builder.branch(loop_block)
+
+            self.builder.position_at_start(update_block)
+            if getRuleName(ctx.children[child_idx]) == 'expression':
+                self.visit(ctx.children[child_idx])
+                child_idx += 2
+            else:
+                child_idx += 1
+            self.builder.branch(cond_block)
+            self.builder.position_at_start(loop_block)
+            self.visit(ctx.children[child_idx])
+            self.builder.branch(update_block)
+            self.builder.position_at_start(end_block)
+            #TODO: continue break[-=/        return self.visitChildren(ctx)
 
     # Visit a parse tree produced by tinycParser#returnStatement.
     def visitReturnStatement(self, ctx:tinycParser.ReturnStatementContext):

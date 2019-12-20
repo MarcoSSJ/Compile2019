@@ -68,6 +68,7 @@ statement //表达式,TODO: 暂时只支持函数和return和{}
    : compoundStatement
    |  returnStatement
    | expressionStatement
+   | iterationStatement
    ;
 
 returnStatement
@@ -76,6 +77,10 @@ returnStatement
 
 expressionStatement
     : expression? ';'
+    ;
+
+iterationStatement
+    : 'for' '(' expression? ';' expression? ';' expression? ')' statement
     ;
 
 expression //语句表达式
