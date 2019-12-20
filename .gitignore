@@ -12,3 +12,4 @@ parser/tinycLexer.tokens
 parser/tinycListener.py
 parser/tinycParser.py
 __pycache__
+test.py
