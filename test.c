@@ -1,1 +1,7 @@
-    {i=1;while(i<100+32)i=i+i;}
+int main(){
+    for(int i = 1; i < 10; i++){
+        printf("%d\n", i);
+        i = i + 1;
+    }
+    return 0;
+}

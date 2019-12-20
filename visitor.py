@@ -124,10 +124,11 @@ class c2llvmVisitor(tinycVisitor):
                 if has_init:
                     init_val = self.visit(ctx.initializer())
                     print('initiaze to ', init_val)
+                    print(isinstance(init_val, ir.IntType))
                     # TODO:数组/字符串首地址,自动转换类型
                     self.builder.store(init_val, addr)
-            except:
-                raise Exception("redefine")
+            except Exception as e:
+                raise e
 
         elif tpe ==self.FUNC :
             raise Exception("init declarator cannot be a func")
@@ -167,9 +168,13 @@ class c2llvmVisitor(tinycVisitor):
 
             if getRuleName(ctx.children[child_idx]) == 'expression':
                 cond_val = self.visit(ctx.children[child_idx])
-                print('cond_val',cond_val)
-                converted_cond = LLVMTypes.bool(cond_val)
-                self.builder.cbranch(converted_cond, loop_block, end_block)
+                print('cond_val',cond_val.flags)
+                buf = cond_val.get_reference()
+
+                buf = LLVMTypes.bool(buf)
+                print('converted_cond', buf)
+
+                self.builder.cbranch(buf, loop_block, end_block)
                 child_idx += 2
             else:
                 child_idx += 1
@@ -262,7 +267,13 @@ class c2llvmVisitor(tinycVisitor):
 
     # Visit a parse tree produced by tinycParser#assignmentExpression.
     def visitAssignmentExpression(self, ctx:tinycParser.AssignmentExpressionContext):
-        return self.visitChildren(ctx)
+        if(len(ctx.children)) == 3:
+            pass
+            return 0
+        else:
+            val, addr = self.visit(ctx.conditionalExpression())
+            return val
+
 
     def visitArgumentExpressionList(self, ctx:tinycParser.ArgumentExpressionListContext):
         if len(ctx.children) == 1:
@@ -279,7 +290,7 @@ class c2llvmVisitor(tinycVisitor):
         if len(ctx.children) == 1:
             return self.visit(ctx.primaryExpression())
         else:
-            left_exp = self.visit(ctx.postfixExpression())
+            left_exp, addr = self.visit(ctx.postfixExpression())
             op = ctx.children[1].getText()
             if op == '(':
                 args = []
@@ -288,132 +299,146 @@ class c2llvmVisitor(tinycVisitor):
                 #TODO 类型转换
                 print('left', left_exp)
                 print('args', args)
-                return self.builder.call(left_exp, args)
+                return self.builder.call(left_exp, args), None
+            elif op == '++':
+                one = left_exp.type(1)
+                print('one', one)
+                res = self.builder.add(left_exp, one)
+                val = self.builder.store(res, addr)
+                return val, res
+            elif op == '--':
+                one = left_exp.type(1)
+                print('one', one)
+                res = self.builder.sub(left_exp, one)
+                val = self.builder.store(res, addr)
+                return val, res
 
-    # Visit a parse tree produced by tinycParser#assignmentExpression.
-    def visitAssignmentExpression(self, ctx:tinycParser.AssignmentExpressionContext):
-        return self.visitChildren(ctx)
+    def visitUnaryExpression(self, ctx:tinycParser.UnaryExpressionContext):
+        return self.visit(ctx.children[0])
 
     # Visit a parse tree produced by tinycParser#multiplicativeExpression.
     def visitMultiplicativeExpression(self, ctx: tinycParser.MultiplicativeExpressionContext):
         if len(ctx.children) == 1:
-            return self.visit(ctx.postfixExpression())
+            return self.visit(ctx.children[0])
         else:
-            lhs = self.visit(ctx.children[0])
-            rhs = self.visit(ctx.children[2])
+            lhs, laddr = self.visit(ctx.children[0])
+            rhs, raddr = self.visit(ctx.children[2])
             op = ctx.children[1].getText()
             if op == '*':
-                return self.builder.mul(lhs, rhs)
+                return self.builder.mul(lhs, rhs), None
             elif op == '/':
-                return self.builder.sdiv(lhs, rhs)
+                return self.builder.sdiv(lhs, rhs), None
             else:
-                return self.builder.srem(lhs, rhs)
+                return self.builder.srem(lhs, rhs), None
 
     # Visit a parse tree produced by tinycParser#additiveExpression.
     def visitAdditiveExpression(self, ctx: tinycParser.AdditiveExpressionContext):
         if len(ctx.children) == 1:
             return self.visit(ctx.multiplicativeExpression())
         else:
-            lhs = self.visit(ctx.children[0])
-            rhs = self.visit(ctx.children[2])
+            lhs, laddr = self.visit(ctx.children[0])
+            rhs, raddr  = self.visit(ctx.children[2])
             op = ctx.children[1].getText()
             if op == '+':
-                return self.builder.add(lhs, rhs)
+                return self.builder.add(lhs, rhs), None
             else:
-                return self.builder.sub(lhs, rhs)
+                return self.builder.sub(lhs, rhs), None
 
     # Visit a parse tree produced by tinycParser#shiftExpression.
     def visitShiftExpression(self, ctx: tinycParser.ShiftExpressionContext):
         if len(ctx.children) == 1:
             return self.visit(ctx.additiveExpression())
         else:
-            lhs = self.visit(ctx.children[0])
-            rhs = self.visit(ctx.children[2])
+            lhs, laddr = self.visit(ctx.children[0])
+            rhs, raddr = self.visit(ctx.children[2])
             op = ctx.children[1].getText()
             if op == '<<':
-                return self.builder.shl(lhs, rhs)
+                return self.builder.shl(lhs, rhs), None
             else:
-                return self.builder.ashr(lhs, rhs)
+                return self.builder.ashr(lhs, rhs), None
 
     # Visit a parse tree produced by tinycParser#relationalExpression.
     def visitRelationalExpression(self, ctx: tinycParser.RelationalExpressionContext):
         if len(ctx.children) == 1:
             return self.visit(ctx.shiftExpression())
         else:
-            lhs = self.visit(ctx.children[0])
-            rhs = self.visit(ctx.children[2])
+            lhs, laddr = self.visit(ctx.children[0])
+            rhs, raddr = self.visit(ctx.children[2])
             op = ctx.children[1].getText()
-            return self.builder.icmp_signed(cmpop=op, lhs=lhs, rhs=rhs)
+            build = self.builder.icmp_signed(cmpop=op, lhs=lhs, rhs=rhs)
+            print('relation build', build, lhs, rhs)
+
+            return build, None
 
     # Visit a parse tree produced by tinycParser#equalityExpression.
     def visitEqualityExpression(self, ctx: tinycParser.EqualityExpressionContext):
         if len(ctx.children) == 1:
             return self.visit(ctx.relationalExpression())
         else:
-            lhs = self.visit(ctx.children[0])
-            rhs = self.visit(ctx.children[2])
+            lhs, laddr = self.visit(ctx.children[0])
+            rhs, raddr = self.visit(ctx.children[2])
             op = ctx.children[1].getText()
-            return self.builder.icmp_signed(cmpop=op, lhs=lhs, rhs=rhs)
+            return self.builder.icmp_signed(cmpop=op, lhs=lhs, rhs=rhs), None
 
     # Visit a parse tree produced by tinycParser#andExpression.
     def visitAndExpression(self, ctx: tinycParser.AndExpressionContext):
         if len(ctx.children) == 1:
             return self.visit(ctx.equalityExpression())
         else:
-            lhs = self.visit(ctx.children[0])
-            rhs = self.visit(ctx.children[2])
+            lhs, laddr = self.visit(ctx.children[0])
+            rhs, raddr = self.visit(ctx.children[2])
             op = ctx.children[1].getText()
-            return self.builder.and_(lhs, rhs)
+            return self.builder.and_(lhs, rhs), None
 
     # Visit a parse tree produced by tinycParser#exclusiveOrExpression.
     def visitExclusiveOrExpression(self, ctx: tinycParser.ExclusiveOrExpressionContext):
         if len(ctx.children) == 1:
             return self.visit(ctx.andExpression())
         else:
-            lhs = self.visit(ctx.children[0])
-            rhs = self.visit(ctx.children[2])
+            lhs, laddr = self.visit(ctx.children[0])
+            rhs, raddr = self.visit(ctx.children[2])
             op = ctx.children[1].getText()
-            return self.builder.xor(lhs, rhs)
+            return self.builder.xor(lhs, rhs), None
 
     # Visit a parse tree produced by tinycParser#inclusiveOrExpression.
     def visitInclusiveOrExpression(self, ctx: tinycParser.InclusiveOrExpressionContext):
         if len(ctx.children) == 1:
             return self.visit(ctx.exclusiveOrExpression())
         else:
-            lhs = self.visit(ctx.children[0])
-            rhs = self.visit(ctx.children[2])
+            lhs, laddr = self.visit(ctx.children[0])
+            rhs, raddr = self.visit(ctx.children[2])
             op = ctx.children[1].getText()
-            return self.builder.or_(lhs, rhs)
+            return self.builder.or_(lhs, rhs), None
 
     # Visit a parse tree produced by tinycParser#logicalAndExpression.
     def visitLogicalAndExpression(self, ctx: tinycParser.LogicalAndExpressionContext):
         if len(ctx.children) == 1:
             return self.visit(ctx.inclusiveOrExpression())
         else:
-            lhs = ir.IntType(1)(self.visit(ctx.children[0]))
-            rhs = ir.IntType(1)(self.visit(ctx.children[2]))
+            lhs, laddr = ir.IntType(1)(self.visit(ctx.children[0]))
+            rhs, raddr = ir.IntType(1)(self.visit(ctx.children[2]))
             result = self.builder.alloca(ir.IntType(1))
             with self.builder.if_else(lhs) as (then, otherwise):
                 with then:
                     self.builder.store(rhs, result)
                 with otherwise:
                     self.builder.store(ir.IntType(1)(0), result)
-            return self.builder.load(result)
+            return self.builder.load(result), result
 
     # Visit a parse tree produced by tinycParser#logicalOrExpression.
     def visitLogicalOrExpression(self, ctx: tinycParser.LogicalOrExpressionContext):
         if len(ctx.children) == 1:
             return self.visit(ctx.logicalAndExpression())
         else:
-            lhs = ir.IntType(1)(self.visit(ctx.children[0]))
-            rhs = ir.IntType(1)(self.visit(ctx.children[2]))
+            lhs, laddr = ir.IntType(1)(self.visit(ctx.children[0]))
+            rhs, raddr = ir.IntType(1)(self.visit(ctx.children[2]))
             result = self.builder.alloca(ir.IntType(1))
             with self.builder.if_else(lhs) as (then, otherwise):
                 with then:
                     self.builder.store(ir.IntType(1)(0), result)
                 with otherwise:
                     self.builder.store(rhs, result)
-            return self.builder.load(result)
+            return self.builder.load(result), result
 
     # Visit a parse tree produced by tinycParser#conditionalExpression.
     def visitConditionalExpression(self, ctx: tinycParser.ConditionalExpressionContext):
@@ -425,14 +450,15 @@ class c2llvmVisitor(tinycVisitor):
 
     # Visit a parse tree produced by tinycParser#primaryExpression.
     def visitPrimaryExpression(self, ctx:tinycParser.PrimaryExpressionContext):
+        """return val and addr"""
         if ctx.IDENTIFIER():
             text = ctx.getText()
-            var = self.symbol_table.getSymbol(text)
-            if var:
-                if type(var) is ir.Function:
-                    return var
-                value = self.builder.load(var)
-                return value
+            addr = self.symbol_table.getSymbol(text)
+            if addr:
+                if type(addr) is ir.Function:
+                    return addr, addr
+                value = self.builder.load(addr)
+                return value, addr
             else:
                 raise Exception('the identifier should be defined first')
         elif ctx.mString():
@@ -448,11 +474,12 @@ class c2llvmVisitor(tinycVisitor):
             const.global_constant = True
             const.initializer = string
             zero = ir.Constant(LLVMTypes.int32, 0)
-            arg = self.builder.gep(const, [zero,zero], inbounds=True)
-            return arg
+            first = self.builder.gep(const, [zero,zero], inbounds=True)
+            return first, first
         elif ctx.CONSTANT():
             text = ctx.getText()
-            return get_const_from_str('int', text)
+            print('const', text)
+            return get_const_from_str('int', text), None
 
     def visitMString(self, ctx:tinycParser.MStringContext):
         """ 将string或者char里面的\n修改了"""

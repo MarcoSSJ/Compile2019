@@ -100,6 +100,8 @@ assignmentExpression //TODO:暂时只支持后缀表达式,表示一个值
 
 postfixExpression //() [] 为后缀的表达式,TODO:暂时只支持函数,只支持接收一个函数参数值
    : primaryExpression
+   | postfixExpression '++'
+   | postfixExpression '--'
    | postfixExpression '(' argumentExpressionList? ')'
    ;
 
@@ -108,8 +110,15 @@ argumentExpressionList
     | argumentExpressionList ',' assignmentExpression
     ;
 
-multiplicativeExpression
+unaryExpression
     :   postfixExpression
+    |   '++' unaryExpression
+    |   '--' unaryExpression
+    |   unaryOperator unaryExpression
+    ;
+
+multiplicativeExpression
+    :   unaryExpression
     |   multiplicativeExpression '*' postfixExpression
     |   multiplicativeExpression '/' postfixExpression
     |   multiplicativeExpression '%' postfixExpression
@@ -172,6 +181,10 @@ conditionalExpression
 
 assignmentOperator
     :   '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '&=' | '^=' | '|='
+    ;
+
+unaryOperator
+    :   '+' | '-' | '~' | '!'
     ;
 
 primaryExpression
