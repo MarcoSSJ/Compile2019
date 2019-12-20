@@ -270,8 +270,34 @@ class c2llvmVisitor(tinycVisitor):
     # Visit a parse tree produced by tinycParser#assignmentExpression.
     def visitAssignmentExpression(self, ctx:tinycParser.AssignmentExpressionContext):
         if(len(ctx.children)) == 3:
-            pass
-            return 0
+            var, addr = self.visit(ctx.postfixExpression())
+            op = ctx.getChild(1).getText()
+            val = self.visit(ctx.assignmentExpression())
+            if op == "=":
+                self.builder.store(val, addr)
+                return val
+            elif op == "+=":
+                add = self.builder.add(var, val)
+                self.builder.store(add, addr)
+                return var #TODO:check here
+            elif op == "-=":
+                sub = self.builder.sub(var, val)
+                self.builder.store(sub, addr)
+                return var
+            elif op == "*=":
+                mul = self.builder.mul(var, val)
+                self.builder.store(mul, addr)
+                return var
+            elif op == "/=":
+                mul = self.builder.sdiv(var, val)
+                self.builder.store(mul, addr)
+                return var
+            elif op == "%=":
+                rem = self.builder.srem(var, val)
+                self.builder.store(rem, addr)
+                return var
+            else:
+                raise  Exception('not implemented')
         else:
             val, addr = self.visit(ctx.conditionalExpression())
             return val
