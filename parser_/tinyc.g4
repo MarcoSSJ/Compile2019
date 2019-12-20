@@ -1,110 +1,210 @@
+
 /*
-BSD License
-Copyright (c) 2013, Tom Everett
-All rights reserved.
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
-3. Neither the name of Tom Everett nor the names of its contributors
-   may be used to endorse or promote products derived from this software
-   without specific prior written permission.
-THIS SOFTWARE IS PROVexp_idED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCexp_idENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+https://cs.wmich.edu/~gupta/teaching/cs4850/sumII06/The%20syntax%20of%20C%20in%20Backus-Naur%20form.htm
+ */
 
 grammar tinyc;
-
-/*
-    http://www.iro.umontreal.ca/~felipe/IFT2030-Automne2002/Complements/tinyc.c
-*//*
- *  <program> ::= <statement>
- *  <statement> ::= "if" <paren_expr> <statement> |
- *                  "if" <paren_expr> <statement> "else" <statement> |
- *                  "while" <paren_expr> <statement> |
- *                  "do" <statement> "while" <paren_expr> ";" |
- *                  "{" { <statement> } "}" |
- *                  <expr> ";" |
- *                  ";"
- *  <paren_expr> ::= "(" <expr> ")"
- *  <expr> ::= <test> | <exp_id> "=" <expr>
- *  <test> ::= <sta_sum> | <sta_sum> "<" <sta_sum>
- *  <sta_sum> ::= <term> | <sta_sum> "+" <term> | <sta_sum> "-" <term>
- *  <term> ::= <exp_id> | <int> | <paren_expr>
- *  <exp_id> ::= "a" | "b" | "c" | "d" | ... | "z"
- *  <int> ::= <an_unsigned_decimal_integer>
-*/
-program
-   : statement +
+/*------------------------parser------------------------------*/
+program //程序入口
+   : (include)* translationUnit+ EOF
    ;
 
-statement
-   : 'if' paren_expr statement
-   | 'if' paren_expr statement 'else' statement
-   | 'while' paren_expr statement
-   | 'do' statement 'while' paren_expr ';'
-   | '{' statement* '}'
-   | expr ';'
-   | ';'
+include //include文件 TODO:支持define预编译
+   : '#include' '<' LIB '>'
+   | '#include' '\'' LIB '\''
    ;
 
-paren_expr
-   : '(' expr ')'
+translationUnit //非头部文件
+   : function
+   | declaration
    ;
 
-expr
-   : test
-   | exp_id '=' expr
+function //函数代码
+   : typeSpecifier declarator compoundStatement //TODO:应该有declaration
    ;
 
-test
-   : sta_sum
-   | sta_sum '<' sta_sum
+typeSpecifier //类别定义 TODO: 支持更多定义 支持static/const
+    : 'int'
+    | 'char'
+    | 'void'
+    ;
+
+compoundStatement //函数中复合语句
+   : '{' compoundUnit* '}'
    ;
 
-sta_sum
-   : term
-   | sta_sum '+' term
-   | sta_sum '-' term
+compoundUnit//单元
+   : declaration
+   | statement
    ;
 
-term
-   : exp_id
-   | integer
-   | paren_expr
+declaration // 定义语句
+   : typeSpecifier initDeclaration ';'
    ;
 
-exp_id
-   : STRING
+initDeclaration //初始化部分
+    : initDeclarator (',' initDeclarator)*
+    ;
+
+initDeclarator //初始化单元
+    :   declarator
+    ;
+
+declarator //初始化单元具体内容
+    :   IDENTIFIER
+    |   IDENTIFIER '(' parameterTypeList? ')'
+    ;
+
+parameterTypeList //函数参数列表
+   :  parameterList (',' '...')? ;
+
+parameterList //函数参数列表具体内容
+   :   parameterDeclaration (',' parameterDeclaration)* ;
+
+parameterDeclaration //函数参数列表声明
+   :   typeSpecifier declarator ;
+
+statement //表达式,TODO: 暂时只支持函数和return和{}
+   : compoundStatement
+   |  returnStatement
+   | expressionStatement
    ;
 
-integer
-   : INT
+returnStatement
+    :  'return' expression? ';'
+    ;
+
+expressionStatement
+    : expression? ';'
+    ;
+
+expression //语句表达式
+   : assignmentExpression (',' assignmentExpression)*
    ;
+
+assignmentExpression //TODO:暂时只支持后缀表达式,表示一个值
+   : conditionalExpression
+   | postfixExpression assignmentOperator assignmentExpression
+   ;
+
+postfixExpression //() [] 为后缀的表达式,TODO:暂时只支持函数,只支持接收一个函数参数值
+   : primaryExpression
+   | postfixExpression '(' argumentExpressionList? ')'
+   ;
+
+argumentExpressionList
+    : assignmentExpression
+    | argumentExpressionList ',' assignmentExpression
+    ;
+
+multiplicativeExpression
+    :   postfixExpression
+    |   multiplicativeExpression '*' postfixExpression
+    |   multiplicativeExpression '/' postfixExpression
+    |   multiplicativeExpression '%' postfixExpression
+    ;
+
+additiveExpression
+    :   multiplicativeExpression
+    |   additiveExpression '+' multiplicativeExpression
+    |   additiveExpression '-' multiplicativeExpression
+    ;
+
+shiftExpression
+    :   additiveExpression
+    |   shiftExpression '<<' additiveExpression
+    |   shiftExpression '>>' additiveExpression
+    ;
+
+relationalExpression
+    :   shiftExpression
+    |   relationalExpression '<' shiftExpression
+    |   relationalExpression '>' shiftExpression
+    |   relationalExpression '<=' shiftExpression
+    |   relationalExpression '>=' shiftExpression
+    ;
+
+equalityExpression
+    :   relationalExpression
+    |   equalityExpression '==' relationalExpression
+    |   equalityExpression '!=' relationalExpression
+    ;
+
+andExpression
+    :   equalityExpression
+    |   andExpression '&' equalityExpression
+    ;
+
+exclusiveOrExpression
+    :   andExpression
+    |   exclusiveOrExpression '^' andExpression
+    ;
+
+inclusiveOrExpression
+    :   exclusiveOrExpression
+    |   inclusiveOrExpression '|' exclusiveOrExpression
+    ;
+
+logicalAndExpression
+    :   inclusiveOrExpression
+    |   logicalAndExpression '&&' inclusiveOrExpression
+    ;
+
+logicalOrExpression
+    :   logicalAndExpression
+    |   logicalOrExpression '||' logicalAndExpression
+    ;
+
+conditionalExpression
+    :   logicalOrExpression ('?' expression ':' conditionalExpression)?
+    ;
+
+assignmentOperator
+    :   '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '&=' | '^=' | '|='
+    ;
+
+primaryExpression
+   :  IDENTIFIER
+   |  STRING
+   |  CONSTANT
+   ;
+
+/*------------------------lexer------------------------------*/
+IDENTIFIER
+   :[a-zA-Z_]  (   [a-zA-Z_]  |   [0-9])*;
 
 
 STRING
-   : [a-z]+
+   : '"' CHARSEQ? '"' | '\'' CHAR '\''
    ;
 
-
-INT
-   : [0-9] +
+fragment //WARNING!: 这里必须式fragment 否则由于
+//https://stackoverflow.com/questions/29777778/antlr-4-5-mismatched-input-x-expecting-x
+//https://stackoverflow.com/questions/17715217/antlr4-mismatched-input
+//所述错误识别
+CHARSEQ
+   : CHAR+
    ;
 
-WS
-   : [ \r\n\t] -> skip
+fragment
+CHAR //暂不支持多行
+    :   ~["\\\r\n]
+    |   '\\' ['"?abfnrtv0\\]
+    ;
+
+CONSTANT
+   : [0-9]+
    ;
+
+LIB : [a-zA-Z]+'.h'?;
+
+/*------------------------注释------------------------------*/
+//Whitespace  :(' ' | '\t')+  -> skip;
+//
+//Newline  :(   '\r' '\n'?   |   '\n')  -> skip;
+
+BlockComment    :'/*' .*? '*/'   -> skip;
+
+LineComment   :'//' ~[\r\n]*   -> skip;
+
+WS : [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines
