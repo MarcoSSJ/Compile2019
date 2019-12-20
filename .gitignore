@@ -13,3 +13,11 @@ parser/tinycListener.py
 parser/tinycParser.py
 __pycache__
 test.py
+parser_/tinyc.interp
+parser_/tinyc.tokens
+parser_/tinycLexer.interp
+parser_/tinycLexer.py
+parser_/tinycLexer.tokens
+parser_/tinycParser.py
+parser_/tinycListener.py
+parser_/tinycVisitor.py
