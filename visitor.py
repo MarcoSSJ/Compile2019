@@ -19,10 +19,10 @@ class c2llvmVisitor(tinycVisitor):
         self.module.data_layout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
         # 符号表
-        self.symbol_table = {}
+        self.symbol_table = SymbolTable()
         printf_type = ir.FunctionType(LLVMTypes().int32, [ir.PointerType(LLVMTypes().int8)], var_arg=True)
         printf_func = ir.Function(self.module, printf_type, "printf")
-        self.symbol_table['printf'] = printf_func
+        self.symbol_table.addSymbol('printf' , printf_func)
         self.cur_type = None
         self.constants = 0
         pass
@@ -50,7 +50,7 @@ class c2llvmVisitor(tinycVisitor):
 
     # Visit a parse tree produced by tinycParser#function.
     def visitFunction(self, ctx:tinycParser.FunctionContext):
-        self.scope_depth += 1
+        self.symbol_table.enterScope()
         ret_type = self.visit(ctx.getChild(0))
         self.cur_type = ret_type
         _, func_name, func_type, arg_names = self.visit(ctx.getChild(1))
@@ -59,9 +59,10 @@ class c2llvmVisitor(tinycVisitor):
         llvm_func = ir.Function(self.module, func_type, name=func_name)
         self.builder = ir.IRBuilder(llvm_func.append_basic_block(name=".entry"))
         for arg, llvm_arg in zip(arg_names, llvm_func.args):
-            self.symbol_table[arg] = llvm_arg
+            self.symbol_table.addSymbol(arg, llvm_arg)
 
         self.visit(ctx.compoundStatement())
+        self.symbol_table.exitScope()
         return
 
 
@@ -215,10 +216,9 @@ class c2llvmVisitor(tinycVisitor):
     def visitPrimaryExpression(self, ctx:tinycParser.PrimaryExpressionContext):
         text = ctx.getText()
         if ctx.IDENTIFIER():
-            if text in self.symbol_table:
-                var = self.symbol_table[text]
-                if type(var) is ir.Function: #函数名直接返回
-                    return var
+            var = self.symbol_table.getSymbol(text)
+            if var and type(var) is ir.Function:
+                return var
         elif ctx.STRING():
             idx = self.constants
             self.constants += 1
