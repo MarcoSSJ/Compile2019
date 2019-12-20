@@ -11,6 +11,9 @@ from SymbolTable import SymbolTable
 
 class c2llvmVisitor(tinycVisitor):
 
+    BASE = 0
+    ARRAY = 1
+    FUNC = 2
 
     def __init__(self):
         super(c2llvmVisitor, self).__init__()
@@ -99,18 +102,46 @@ class c2llvmVisitor(tinycVisitor):
 
     # Visit a parse tree produced by tinycParser#declaration.
     def visitDeclaration(self, ctx:tinycParser.DeclarationContext):
-        return self.visitChildren(ctx)
+        var_type = self.visit(ctx.typeSpecifier())
+        self.cur_type = var_type
+
+        init_list = self.visit(ctx.initDeclaration())
 
 
     # Visit a parse tree produced by tinycParser#initDeclaration.
     def visitInitDeclaration(self, ctx:tinycParser.InitDeclarationContext):
-        return self.visitChildren(ctx)
-
+        cnt = ctx.getChildCount()
+        declarator = None
+        for index in range(0, cnt, 2):
+            declarator = self.visit(ctx.getChild(index))
+        return declarator
 
     # Visit a parse tree produced by tinycParser#initDeclarator.
     def visitInitDeclarator(self, ctx:tinycParser.InitDeclaratorContext):
-        return self.visitChildren(ctx)
+        tpe, name, llvm_tpe, _ = self.visit(ctx.declarator())
+        has_init = (len(ctx.children) == 3)
+        if tpe == self.BASE:
+            # 分配内存
+            addr = self.builder.alloca(llvm_tpe)
+            try:
+                self.symbol_table.addSymbol(name, addr)
+                if has_init:
+                    init_val = self.visit(ctx.initializer())
+                    print('initiaze to ', init_val)
+                    # TODO:数组/字符串首地址,自动转换类型
+                    self.builder.store(init_val, addr)
+            except:
+                raise Exception("redefine")
 
+        elif tpe ==self.FUNC :
+            raise Exception("init declarator cannot be a func")
+            #TODO: error
+        else:
+            pass
+
+    def visitInitializer(self, ctx:tinycParser.InitializerContext):
+        if len(ctx.children) == 1:
+            return self.visit(ctx.assignmentExpression())
 
 
     def visitIterationStatement(self, ctx:tinycParser.IterationStatementContext):
@@ -124,6 +155,9 @@ class c2llvmVisitor(tinycVisitor):
             if getRuleName(ctx.children[child_idx]) == 'expression':
                 self.visit(ctx.children[child_idx])
                 child_idx += 2
+            elif getRuleName(ctx.children[child_idx]) == 'declaration':
+                self.visit(ctx.declaration())
+                child_idx += 1
             else:
                 child_idx += 1
 
@@ -179,19 +213,19 @@ class c2llvmVisitor(tinycVisitor):
         if len(ctx.children) == 1:
             # :   IDENTIFIER
             # TODO: 检查这里返回值
-            return None ,ctx.IDENTIFIER().getText(), self.cur_type, []
+            return self.BASE ,ctx.IDENTIFIER().getText(), self.cur_type, []
         else:
             func_name = ctx.IDENTIFIER().getText()
             if len(ctx.children) == 4:
                 (arg_names, arg_types), var_arg = self.visit(ctx.parameterTypeList())
                 new_llvm_type = ir.FunctionType(self.cur_type, arg_types, var_arg=var_arg)
                 # 代表有参数列表
-                return None, func_name,new_llvm_type, arg_names
+                return self.FUNC, func_name,new_llvm_type, arg_names
             else:
                 arg_names = []
                 arg_types = []
                 new_llvm_type = ir.FunctionType(self.cur_type, arg_types)
-                return None,  func_name, new_llvm_type, arg_names
+                return self.FUNC, func_name, new_llvm_type, arg_names
 
     # Visit a parse tree produced by tinycParser#parameterTypeList.
     def visitParameterTypeList(self, ctx:tinycParser.ParameterTypeListContext):
@@ -271,8 +305,13 @@ class c2llvmVisitor(tinycVisitor):
         if ctx.IDENTIFIER():
             text = ctx.getText()
             var = self.symbol_table.getSymbol(text)
-            if var and type(var) is ir.Function:
-                return var
+            if var:
+                if type(var) is ir.Function:
+                    return var
+                value = self.builder.load(var)
+                return value
+            else:
+                raise Exception('the identifier should be defined first')
         elif ctx.mString():
             text = self.visit(ctx.mString())
             idx = self.constants

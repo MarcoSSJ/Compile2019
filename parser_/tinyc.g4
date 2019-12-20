@@ -48,6 +48,11 @@ initDeclaration //初始化部分
 
 initDeclarator //初始化单元
     :   declarator
+    |   declarator '=' initializer
+    ;
+
+initializer //TODO:支持数组初始化
+    :   assignmentExpression
     ;
 
 declarator //初始化单元具体内容
@@ -81,6 +86,7 @@ expressionStatement
 
 iterationStatement
     : 'for' '(' expression? ';' expression? ';' expression? ')' statement
+    | 'for' '(' declaration expression? ';' expression? ')' statement
     ;
 
 expression //语句表达式

@@ -63,7 +63,7 @@ def parse_escape(s):
 def get_const_from_str(ctype, const_value):
     """
     从字符串获得常数类型
-    :param ctype: 类型,接受char,float,double,short,int,ir.ArrayType
+    :param ctype: str类型,接受char,float,double,short,int,ir.ArrayType,bool
     :param const_value: 值，是一个字符串
     :return:
     """
