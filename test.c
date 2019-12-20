@@ -16,10 +16,8 @@ int main(){
         printf("%d\n", i);
         i = i + 1;
     }
+
     testMulti();
     return 0;
 }
 
-//int test(int i, int j, int k){
-//    return 0;
-//}
