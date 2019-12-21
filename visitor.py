@@ -126,10 +126,10 @@ class c2llvmVisitor(tinycVisitor):
                 self.symbol_table.addSymbol(name, addr)
                 if has_init:
                     init_val = self.visit(ctx.initializer())
-                    if type(init_val) != ir.Constant: #TODO:check here我觉得问题很大
-                        converted_val = ir.Constant(llvm_tpe,init_val)
-                    else:
-                        converted_val = init_val
+                    # if type(init_val) != ir.Constant: #TODO:check here我觉得问题很大
+                    #     converted_val = ir.Constant(llvm_tpe,init_val)
+                    # else:
+                    converted_val = init_val
                     print('initiaze to ', init_val)
                     print(isinstance(init_val, ir.IntType))
                     print(type(init_val))
