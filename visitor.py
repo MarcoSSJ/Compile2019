@@ -460,7 +460,7 @@ class c2llvmVisitor(tinycVisitor):
             return self.visit(ctx.multiplicativeExpression())
         else:
             lhs, laddr = self.visit(ctx.children[0])
-            rhs, raddr  = self.visit(ctx.children[2])
+            rhs, raddr = self.visit(ctx.children[2])
             op = ctx.children[1].getText()
             if op == '+':
                 return self.builder.add(lhs, rhs), None
