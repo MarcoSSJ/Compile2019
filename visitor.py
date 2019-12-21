@@ -302,11 +302,27 @@ class c2llvmVisitor(tinycVisitor):
             val = self.visit(ctx.getChild(index))
         return val
 
+    # Visit a parse tree produced by tinycParser#selectionStatement.
+    def visitSelectionStatement(self, ctx: tinycParser.SelectionStatementContext):
+        if ctx.children[0].getText() == 'if':
+            value = self.visit(ctx.children[2])
+            condition = ir.IntType(1)(value)
+            self.symbol_table.enterScope()
+            if len(ctx.children) > 5:
+                with self.builder.if_else(condition) as (then, otherwise):
+                    with then:
+                        self.visit(ctx.children[4])
+                    with otherwise:
+                        self.visit(ctx.children[6])
+            else:
+                with self.builder.if_then(condition):
+                    self.visit(ctx.children[4])
+            self.symbol_table.exitScope()
 
     # Visit a parse tree produced by tinycParser#assignmentExpression.
     def visitAssignmentExpression(self, ctx:tinycParser.AssignmentExpressionContext):
         if(len(ctx.children)) == 3:
-            var, addr = self.visit(ctx.postfixExpression())
+            var, addr = self.visit(ctx.unaryExpression())
             op = ctx.getChild(1).getText()
             val = self.visit(ctx.assignmentExpression())
             if op == "=":
@@ -409,6 +425,7 @@ class c2llvmVisitor(tinycVisitor):
             elif text == '-':
                 neg = self.builder.neg(val)
                 return neg, None
+
     # Visit a parse tree produced by tinycParser#multiplicativeExpression.
     def visitMultiplicativeExpression(self, ctx: tinycParser.MultiplicativeExpressionContext):
         if len(ctx.children) == 1:
