@@ -3,6 +3,7 @@
 #include <stdio.h>
 #define TRUE 1
 #define FALSE 0
+#define IDTEST(a,b,c) a,b,c
 
 int strLen(char s[]){
     int i;

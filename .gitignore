@@ -17,3 +17,12 @@ parser_/tinycVisitor.py
 precompile/.antlr/
 output.ll
 tinyc.g4
+preprocess/CmacrosVisitor.py
+preprocess/CmacrosParser.py
+preprocess/CmacrosListener.py
+preprocess/CmacrosLexer.tokens
+preprocess/CmacrosLexer.py
+preprocess/CmacrosLexer.interp
+preprocess/Cmacros.tokens
+preprocess/Cmacros.interp
+preprocess/__init__.py
