@@ -27,34 +27,7 @@ typeSpecifier //类别定义 TODO: 支持更多定义 支持static/const
     : 'int'
     | 'char'
     | 'void'
-    | 'struct' IDENTIFIER? '{' structDeclarationList '}'
-    | 'struct' IDENTIFIER
     ;
-
-structDeclarationList
-    : structDeclaration
-    | structDeclarationList structDeclaration
-    ;
-
-structDeclaration
-    :
-    specifierQualifierList ';'
-//    |specifierQualifierList structDeclaratorList? ';'
-    ;
-
-specifierQualifierList
-    : typeSpecifier IDENTIFIER
-    ;
-
-//structDeclaratorList
-//    : structDeclarator
-//    | structDeclaratorList ',' structDeclarator
-//    ;
-//
-//structDeclarator
-//    : declarator
-//    | declarator? ':' conditionalExpression
-//    ;
 
 compoundStatement //函数中复合语句
    : '{' compoundUnit* '}'
@@ -130,8 +103,6 @@ selectionStatement
 iterationStatement
     : 'for' '(' expression? ';' expression? ';' expression? ')' statement
     | 'for' '(' declaration expression? ';' expression? ')' statement
-    | 'while' '(' expression ')' statement
-    | 'do' statement 'while' '(' expression ')' ';'
     ;
 
 expression //语句表达式
@@ -147,8 +118,6 @@ postfixExpression //() [] 为后缀的表达式,TODO:暂时只支持函数,只�
    : primaryExpression
    | postfixExpression '++'
    | postfixExpression '--'
-   | postfixExpression '.' IDENTIFIER
-   | postfixExpression '->' IDENTIFIER
    | postfixExpression '(' argumentExpressionList? ')'
    | postfixExpression '[' expression ']'
    ;
