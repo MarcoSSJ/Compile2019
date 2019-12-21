@@ -92,23 +92,25 @@ class c2llvmVisitor(tinycVisitor):
         elif text == 'char':
             return ir.IntType(8)
         elif text == 'struct':
-            if len(ctx.children) == 5:
-                struct_name = ctx.IDENTIFIER().getText()
-                tmp_list = self.visit(ctx.children[3])
-                self.struct[struct_name] = {}
-                index = 0
-                ele_list = []
-                for ele in tmp_list:
-                    self.struct[struct_name][ele['name']] = {
-                        'type': ele['type'],
-                        'index': index
-                    }
-                    ele_list.append(ele['type'])
-                    index = index + 1
-                new_struct = self.global_context.get_identified_type(name=struct_name)
-                new_struct.set_body(*ele_list)
-                return new_struct
-            elif len(ctx.children) == 2:
+            # if len(ctx.children) == 5:
+            #     struct_name = ctx.IDENTIFIER().getText()
+            #     print(struct_name)
+            #     tmp_list = self.visit(ctx.children[3])
+            #     print(tmp_list)
+            #     self.struct[struct_name] = {}
+            #     index = 0
+            #     ele_list = []
+            #     for ele in tmp_list:
+            #         self.struct[struct_name][ele['name']] = {
+            #             'type': ele['type'],
+            #             'index': index
+            #         }
+            #         ele_list.append(ele['type'])
+            #         index = index + 1
+            #     new_struct = self.global_context.get_identified_type(name=struct_name)
+            #     new_struct.set_body(*ele_list)
+            #     return new_struct
+            if len(ctx.children) == 2:
                 struct_name = ctx.IDENTIFIER().getText()
                 if ctx.IDENTIFIER().getText() in self.struct.keys():
                     new_struct = self.global_context.get_identified_type(name=struct_name)
@@ -137,7 +139,7 @@ class c2llvmVisitor(tinycVisitor):
         if len(ctx.children) == 1:
             return self.visit(ctx.children[0])
         else:
-            struct_dict = {'type': self.visit(ctx.children[0]), 'name': ctx.children[1].getText()}
+            struct_dict = {'type': self.visit(ctx.children[0]), 'name': ctx.IDENTIFIER().getText()}
             return struct_dict
 
     # # Visit a parse tree produced by tinycParser#structDeclaratorList.
@@ -156,14 +158,31 @@ class c2llvmVisitor(tinycVisitor):
     def visitCompoundUnit(self, ctx:tinycParser.CompoundUnitContext):
         return self.visitChildren(ctx)
 
-
     # Visit a parse tree produced by tinycParser#declaration.
     def visitDeclaration(self, ctx:tinycParser.DeclarationContext):
-        var_type = self.visit(ctx.typeSpecifier())
-        self.cur_type = var_type
+        if len(ctx.children) == 3:
+            var_type = self.visit(ctx.typeSpecifier())
+            self.cur_type = var_type
 
-        init_list = self.visit(ctx.initDeclaration())
-
+            init_list = self.visit(ctx.initDeclaration())
+        else:
+            struct_name = ctx.IDENTIFIER().getText()
+            print(struct_name)
+            tmp_list = self.visit(ctx.children[3])
+            print(tmp_list)
+            self.struct[struct_name] = {}
+            index = 0
+            ele_list = []
+            for ele in tmp_list:
+                self.struct[struct_name][ele['name']] = {
+                    'type': ele['type'],
+                    'index': index
+                }
+                ele_list.append(ele['type'])
+                index = index + 1
+            new_struct = self.global_context.get_identified_type(name=struct_name)
+            new_struct.set_body(*ele_list)
+            return new_struct
 
     # Visit a parse tree produced by tinycParser#initDeclaration.
     def visitInitDeclaration(self, ctx:tinycParser.InitDeclarationContext):

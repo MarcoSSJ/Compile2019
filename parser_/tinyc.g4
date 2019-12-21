@@ -27,7 +27,7 @@ typeSpecifier //类别定义 TODO: 支持更多定义 支持static/const
     : 'int'
     | 'char'
     | 'void'
-    | 'struct' IDENTIFIER? '{' structDeclarationList '}'
+//    | 'struct' IDENTIFIER? '{' structDeclarationList '}'
     | 'struct' IDENTIFIER
     ;
 
@@ -67,10 +67,12 @@ compoundUnit//单元
 
 declaration // 定义语句
    : typeSpecifier initDeclaration ';'
+   | 'struct' IDENTIFIER? '{' structDeclarationList '}' ';'
    ;
 
 initDeclaration //初始化部分
     : initDeclarator (',' initDeclarator)*
+    |  '{' structDeclarationList '}'
     ;
 
 initDeclarator //初始化单元

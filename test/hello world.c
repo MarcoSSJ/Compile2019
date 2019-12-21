@@ -1,10 +1,10 @@
 #include <stdio.h>
 
-//struct sa
-//{
-//    int b;
-//    int c;
-//}
+struct sa
+{
+    int b;
+    int c;
+};
 
 int main(){
     int a=5;
