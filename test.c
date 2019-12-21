@@ -16,8 +16,9 @@ int main(){
 //        printf("%d\n", i);
 //        i = i + 1;
 //    }
-    char c[] = "abcd"
-    char d = c[1];s
+    char c[5] = "abcd\0";
+    printf("%s", c);
+//    char d = c[1];s
 
 //    testMulti();
     return 0;

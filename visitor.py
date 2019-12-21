@@ -114,7 +114,7 @@ class c2llvmVisitor(tinycVisitor):
 
     # Visit a parse tree produced by tinycParser#initDeclarator.
     def visitInitDeclarator(self, ctx:tinycParser.InitDeclaratorContext):
-        tpe, name, llvm_tpe, _ = self.visit(ctx.declarator())
+        tpe, name, llvm_tpe, size = self.visit(ctx.declarator())
         has_init = (len(ctx.children) == 3)
         if tpe == self.BASE:
             # 分配内存
@@ -123,20 +123,30 @@ class c2llvmVisitor(tinycVisitor):
                 self.symbol_table.addSymbol(name, addr)
                 if has_init:
                     init_val = self.visit(ctx.initializer())
+                    converted_val = ir.Constant(llvm_tpe,init_val)
                     print('initiaze to ', init_val)
                     print(isinstance(init_val, ir.IntType))
                     # TODO:数组/字符串首地址,自动转换类型
                     print(type(init_val))
                     print('help me teacher!!',init_val, addr)
-                    self.builder.store(init_val, addr)
+                    self.builder.store(converted_val, addr)
             except Exception as e:
                 raise e
 
-        elif tpe ==self.FUNC :
+        elif tpe == self.FUNC :
             raise Exception("init declarator cannot be a func")
             #TODO: error
-        else:
-            pass
+        elif tpe == self.ARRAY:
+            addr = self.builder.alloca(llvm_tpe)
+            try:
+                self.symbol_table.addSymbol(name, addr)
+                if has_init:
+                    init_val = self.visit(ctx.initializer())
+                    print('initiaze to ', init_val)
+                    # print('help me teacher!!',init_val, addr)
+                    self.builder.store(init_val, addr)
+            except Exception as e:
+                raise e
 
     def visitInitializer(self, ctx:tinycParser.InitializerContext):
         if len(ctx.children) == 1:
@@ -236,7 +246,17 @@ class c2llvmVisitor(tinycVisitor):
                     new_llvm_type = ir.FunctionType(self.cur_type, arg_types)
                     return self.FUNC, func_name, new_llvm_type, arg_names
             elif op == '[':
-                pass
+                arrayname = ctx.children[0].getText()
+                if len(ctx.children) == 4:
+                    try:
+                        num = int(ctx.constantExpression().getText())
+                        llvm_type = ir.PointerType(self.cur_type)
+                        return self.ARRAY, arrayname, llvm_type ,num
+                    except:
+                        raise Exception('only constant value are supported')
+                else:
+                    raise Exception('not supported')
+                    # return self.ARRAY, arrayname, ,None
 
 
     # Visit a parse tree produced by tinycParser#constantExpression.
