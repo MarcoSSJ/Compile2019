@@ -364,7 +364,10 @@ class c2llvmVisitor(tinycVisitor):
                 return self.builder.call(left_exp, args), None
             elif op == '[':
                 val = self.visit(ctx.expression())
-                var = self.builder.extract_value(left_exp, val)
+                print("[]the val is ",val, left_exp)
+                addr = self.builder.gep(left_exp, [val])
+
+                var = self.builder.load(addr)
                 return var, None
             elif op == '++':
                 one = left_exp.type(1)
