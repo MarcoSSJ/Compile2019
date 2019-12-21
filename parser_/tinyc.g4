@@ -47,41 +47,47 @@ initDeclaration //初始化部分
     ;
 
 initDeclarator //初始化单元
-    :   declarator
-    |   declarator '=' initializer
+    : declarator
+    | declarator '=' initializer
     ;
 
 initializer //TODO:支持数组初始化
-    :   assignmentExpression
+    : assignmentExpression
     ;
 
 declarator //初始化单元具体内容
-    :   IDENTIFIER
-    |   IDENTIFIER '(' parameterTypeList? ')'
+    : IDENTIFIER
+    | IDENTIFIER '(' parameterTypeList? ')'
     ;
 
 parameterTypeList //函数参数列表
-   :  parameterList (',' '...')? ;
+    : parameterList (',' '...')? ;
 
 parameterList //函数参数列表具体内容
-   :   parameterDeclaration (',' parameterDeclaration)* ;
+    : parameterDeclaration (',' parameterDeclaration)* ;
 
 parameterDeclaration //函数参数列表声明
-   :   typeSpecifier declarator ;
+    : typeSpecifier declarator ;
 
 statement //表达式,TODO: 暂时只支持函数和return和{}
-   : compoundStatement
-   |  returnStatement
-   | expressionStatement
-   | iterationStatement
-   ;
+    : compoundStatement
+    | returnStatement
+    | expressionStatement
+    | iterationStatement
+    | selectionStatement
+    ;
 
 returnStatement
-    :  'return' expression? ';'
+    : 'return' expression? ';'
     ;
 
 expressionStatement
     : expression? ';'
+    ;
+
+selectionStatement
+    : 'if' '(' expression ')' statement ('else' statement)?
+    | 'switch' '(' expression ')' statement
     ;
 
 iterationStatement
@@ -111,117 +117,117 @@ argumentExpressionList
     ;
 
 unaryExpression
-    :   postfixExpression
-    |   '++' unaryExpression
-    |   '--' unaryExpression
-    |   unaryOperator unaryExpression
+    : postfixExpression
+    | '++' unaryExpression
+    | '--' unaryExpression
+    | unaryOperator unaryExpression
     ;
 
 multiplicativeExpression
-    :   unaryExpression
-    |   multiplicativeExpression '*' postfixExpression
-    |   multiplicativeExpression '/' postfixExpression
-    |   multiplicativeExpression '%' postfixExpression
+    : unaryExpression
+    | multiplicativeExpression '*' postfixExpression
+    | multiplicativeExpression '/' postfixExpression
+    | multiplicativeExpression '%' postfixExpression
     ;
 
 additiveExpression
-    :   multiplicativeExpression
-    |   additiveExpression '+' multiplicativeExpression
-    |   additiveExpression '-' multiplicativeExpression
+    : multiplicativeExpression
+    | additiveExpression '+' multiplicativeExpression
+    | additiveExpression '-' multiplicativeExpression
     ;
 
 shiftExpression
-    :   additiveExpression
-    |   shiftExpression '<<' additiveExpression
-    |   shiftExpression '>>' additiveExpression
+    : additiveExpression
+    | shiftExpression '<<' additiveExpression
+    | shiftExpression '>>' additiveExpression
     ;
 
 relationalExpression
-    :   shiftExpression
-    |   relationalExpression '<' shiftExpression
-    |   relationalExpression '>' shiftExpression
-    |   relationalExpression '<=' shiftExpression
-    |   relationalExpression '>=' shiftExpression
+    : shiftExpression
+    | relationalExpression '<' shiftExpression
+    | relationalExpression '>' shiftExpression
+    | relationalExpression '<=' shiftExpression
+    | relationalExpression '>=' shiftExpression
     ;
 
 equalityExpression
-    :   relationalExpression
-    |   equalityExpression '==' relationalExpression
-    |   equalityExpression '!=' relationalExpression
+    : relationalExpression
+    | equalityExpression '==' relationalExpression
+    | equalityExpression '!=' relationalExpression
     ;
 
 andExpression
-    :   equalityExpression
-    |   andExpression '&' equalityExpression
+    : equalityExpression
+    | andExpression '&' equalityExpression
     ;
 
 exclusiveOrExpression
-    :   andExpression
-    |   exclusiveOrExpression '^' andExpression
+    : andExpression
+    | exclusiveOrExpression '^' andExpression
     ;
 
 inclusiveOrExpression
-    :   exclusiveOrExpression
-    |   inclusiveOrExpression '|' exclusiveOrExpression
+    : exclusiveOrExpression
+    | inclusiveOrExpression '|' exclusiveOrExpression
     ;
 
 logicalAndExpression
-    :   inclusiveOrExpression
-    |   logicalAndExpression '&&' inclusiveOrExpression
+    : inclusiveOrExpression
+    | logicalAndExpression '&&' inclusiveOrExpression
     ;
 
 logicalOrExpression
-    :   logicalAndExpression
-    |   logicalOrExpression '||' logicalAndExpression
+    : logicalAndExpression
+    | logicalOrExpression '||' logicalAndExpression
     ;
 
 conditionalExpression
-    :   logicalOrExpression ('?' expression ':' conditionalExpression)?
+    : logicalOrExpression ('?' expression ':' conditionalExpression)?
     ;
 
 assignmentOperator
-    :   '=' | '*=' | '/=' | '%=' | '+=' | '-=' //TODO:| '<<=' | '>>=' | '&=' | '^=' | '|='
+    : '=' | '*=' | '/=' | '%=' | '+=' | '-=' //TODO:| '<<=' | '>>=' | '&=' | '^=' | '|='
     ;
 
 unaryOperator
-    :   '+' | '-' | '~' | '!'
+    : '+' | '-' | '~' | '!'
     ;
 
 primaryExpression
-   :  IDENTIFIER
-   |  mString
-   |  CONSTANT
-   ;
+    : IDENTIFIER
+    | mString
+    | CONSTANT
+    ;
 
 /*------------------------lexer------------------------------*/
 IDENTIFIER
-   :[a-zA-Z_]  (   [a-zA-Z_]  |   [0-9])*;
+    : [a-zA-Z_] ( [a-zA-Z_] | [0-9] )*;
 
 mString
-    :STRING
+    : STRING
     ;
 
 STRING
-   : '"' CHARSEQ? '"' | '\'' CHAR '\''
-   ;
+    : '"' CHARSEQ? '"' | '\'' CHAR '\''
+    ;
 
 fragment //WARNING!: 这里必须式fragment 否则由于
 //https://stackoverflow.com/questions/29777778/antlr-4-5-mismatched-input-x-expecting-x
 //https://stackoverflow.com/questions/17715217/antlr4-mismatched-input
 //所述错误识别
 CHARSEQ
-   : CHAR+
-   ;
+    : CHAR+
+    ;
 
 fragment
 CHAR //暂不支持多行
-    :   ~["\\\r\n]
-    |   '\\' ['"?abfnrtv0\\]
+    : ["\\\r\n]
+    | '\\' ['"?abfnrtv0\\]
     ;
 
 CONSTANT
-   : [0-9]+
-   ;
+    : [0-9]+
+    ;
 
 LIB : [a-zA-Z]+'.h'?;
 
@@ -230,8 +236,8 @@ LIB : [a-zA-Z]+'.h'?;
 //
 //Newline  :(   '\r' '\n'?   |   '\n')  -> skip;
 
-BlockComment    :'/*' .*? '*/'   -> skip;
+BlockComment: '/*' .*? '*/'   -> skip;
 
-LineComment   :'//' ~[\r\n]*   -> skip;
+LineComment: '//' ~[\r\n]*   -> skip;
 
-WS : [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines
+WS: [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines

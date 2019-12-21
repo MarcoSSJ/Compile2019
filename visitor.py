@@ -266,7 +266,23 @@ class c2llvmVisitor(tinycVisitor):
             val = self.visit(ctx.getChild(index))
         return val
 
-
+    # Visit a parse tree produced by tinycParser#selectionStatement.
+    def visitSelectionStatement(self, ctx: tinycParser.SelectionStatementContext):
+        if ctx.children[0].getText() == 'if':
+            value = self.visit(ctx.children[2])
+            condition = ir.IntType(1)(value)
+            self.symbol_table.enterScope()
+            if len(ctx.children) > 5:
+                with self.builder.if_else(condition) as (then, otherwise):
+                    with then:
+                        self.visit(ctx.children[4])
+                    with otherwise:
+                        self.visit(ctx.children[6])
+            else:
+                with self.builder.if_then(condition):
+                    self.visit(ctx.children[4])
+            self.symbol_table.exitScope()
+/
     # Visit a parse tree produced by tinycParser#assignmentExpression.
     def visitAssignmentExpression(self, ctx:tinycParser.AssignmentExpressionContext):
         if(len(ctx.children)) == 3:
