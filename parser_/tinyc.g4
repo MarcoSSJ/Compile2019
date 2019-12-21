@@ -222,7 +222,7 @@ CHARSEQ
 
 fragment
 CHAR //暂不支持多行
-    : ["\\\r\n]
+    : ~["\\\r\n]
     | '\\' ['"?abfnrtv0\\]
     ;
 
