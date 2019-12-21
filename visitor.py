@@ -67,6 +67,8 @@ class c2llvmVisitor(tinycVisitor):
             self.builder = ir.IRBuilder(llvm_func.append_basic_block(name=".entry"))
         self.symbol_table.enterScope()
         for arg, llvm_arg in zip(arg_names, llvm_func.args):
+            print('func add argname', arg, llvm_arg)
+            print(type(llvm_arg))
             self.symbol_table.addSymbol(arg, llvm_arg)
 
         self.visit(ctx.compoundStatement())
@@ -257,7 +259,11 @@ class c2llvmVisitor(tinycVisitor):
                     except:
                         raise Exception('only constant value are supported')
                 else:
-                    raise Exception('not supported')
+                    arrayname = ctx.children[0].getText()
+                    print("current type", self.cur_type)
+                    llvm_type = ir.PointerType(self.cur_type)
+                    print("param type", llvm_type)
+                    return self.ARRAY, arrayname, llvm_type, None
                     # return self.ARRAY, arrayname, ,None
 
 
@@ -361,6 +367,7 @@ class c2llvmVisitor(tinycVisitor):
         else:
             arg_list = self.visit(ctx.argumentExpressionList())
         arg = self.visit(ctx.assignmentExpression())
+        print('arg is ', arg)
         arg_list.append(arg)
         return arg_list
 
@@ -382,8 +389,8 @@ class c2llvmVisitor(tinycVisitor):
                 return self.builder.call(left_exp, args), None
             elif op == '[':
                 val = self.visit(ctx.expression())
-                print("[]the val is ",val, left_exp)
-                addr = self.builder.gep(left_exp, [val])
+                print("postif []the val is ",val, "left " , addr)
+                addr = self.builder.gep(addr, [val])
 
                 var = self.builder.load(addr)
                 return var, None
@@ -565,8 +572,12 @@ class c2llvmVisitor(tinycVisitor):
             text = ctx.getText()
             addr = self.symbol_table.getSymbol(text)
             if addr:
-                if type(addr) is ir.Function:
+                print("primary of addr",type(addr), addr)
+                if type(addr) in [ir.Argument, ir.Function]:
+                    print("why it is not ", addr)
+                    #TODO:here is a function parameter bug
                     return addr, addr
+                print(f"{text}addr is ", addr)
                 value = self.builder.load(addr)
                 return value, addr
             else:

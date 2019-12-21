@@ -33,7 +33,8 @@ def preCompile(filename, output):
         f.write(output_str)
 
 def main(filename, output):
-    input_stream = FileStream('temp.c')
+    #input_stream = FileStream('temp.c')
+    input_stream = FileStream(filename)
     lexer = tinycLexer(input_stream)
     token_stream = CommonTokenStream(lexer)
     parser = tinycParser(token_stream)
@@ -47,8 +48,8 @@ def main(filename, output):
         f.write(repr(my_visitor.module))
 
 
-filename = 'test\palindrome.c'
+#filename = 'test/palindrome.c'
 temp = 'temp.c'
 output = 'output.ll'
-preCompile(filename, temp)
-main(filename, output)
+#preCompile(filename, temp)
+main(temp, output)
