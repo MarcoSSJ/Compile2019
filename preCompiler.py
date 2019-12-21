@@ -17,109 +17,25 @@ class preCompiler(preCompileVisitor):
         self.define = []
         pass
 
-    # Visit a parse tree produced by preCompileParser#program.
-    def visitProgram(self, ctx:preCompileParser.ProgramContext):
+    # Visit a parse tree produced by tinycParser#program.
+    def visitProgram(self, ctx:tinycParser.ProgramContext):
+        total = ctx.getChildCount()
+        print('visit program', total, ctx, ctx.getText())
+        for index in range(total):
+            print('\n\n++ctx.getChild(index):', ctx.getChild(index))
+            self.visit(ctx.getChild(index))
+        return
+
+    # Visit a parse tree produced by tinycParser#include.
+    def visitInclude(self, ctx:tinycParser.IncludeContext):
+        print('visit include', ctx.getChild(2).getText())
         return self.visitChildren(ctx)
 
-
-    # Visit a parse tree produced by preCompileParser#statement.
-    def visitStatement(self, ctx:preCompileParser.StatementContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#preprocess.
-    def visitPreprocess(self, ctx:preCompileParser.PreprocessContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppChars.
-    def visitPpChars(self, ctx:preCompileParser.PpCharsContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppInclude.
-    def visitPpInclude(self, ctx:preCompileParser.PpIncludeContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppPragma.
-    def visitPpPragma(self, ctx:preCompileParser.PpPragmaContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppError.
-    def visitPpError(self, ctx:preCompileParser.PpErrorContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppUndef.
-    def visitPpUndef(self, ctx:preCompileParser.PpUndefContext):
-        id = ctx.ID().getText()
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppDefineVar.
-    def visitPpDefineVar(self, ctx:preCompileParser.PpDefineVarContext):
-        id = ctx.ID().getText()
-        var = ctx.ppChars().getText()
-        if var:
-            try:
-                self.symbol_table.addSymbol(id, var)
-            except:
-                raise Exception('redefine error')
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppDefineFunc.
-    def visitPpDefineFunc(self, ctx:preCompileParser.PpDefineFuncContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppdfId.
-    def visitPpdfId(self, ctx:preCompileParser.PpdfIdContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppdfiArguments.
-    def visitPpdfiArguments(self, ctx:preCompileParser.PpdfiArgumentsContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppdfiArgument.
-    def visitPpdfiArgument(self, ctx:preCompileParser.PpdfiArgumentContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppdfChars.
-    def visitPpdfChars(self, ctx:preCompileParser.PpdfCharsContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppdfcId.
-    def visitPpdfcId(self, ctx:preCompileParser.PpdfcIdContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppdfcNotId.
-    def visitPpdfcNotId(self, ctx:preCompileParser.PpdfcNotIdContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppIfStatement.
-    def visitPpIfStatement(self, ctx:preCompileParser.PpIfStatementContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppisIfDef.
-    def visitPpisIfDef(self, ctx:preCompileParser.PpisIfDefContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppisIfNdef.
-    def visitPpisIfNdef(self, ctx:preCompileParser.PpisIfNdefContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by preCompileParser#ppisStatement.
-    def visitPpisStatement(self, ctx:preCompileParser.PpisStatementContext):
+    def visitDefine(self, ctx:preCompileParser.DefineContext):
+        print('visit define', ctx.getText(), ctx.getChildren())
+        total = ctx.getChildCount()
+        for index in range(total):
+            print(index, ctx.getChild(index))
+        self.define.append((ctx.getChild(1).getText(), ctx.getChild(2).getText()))
+        print('define', self.define)
         return self.visitChildren(ctx)
