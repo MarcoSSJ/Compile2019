@@ -114,7 +114,7 @@ class c2llvmVisitor(tinycVisitor):
 
     # Visit a parse tree produced by tinycParser#initDeclarator.
     def visitInitDeclarator(self, ctx:tinycParser.InitDeclaratorContext):
-        tpe, name, llvm_tpe, _ = self.visit(ctx.declarator())
+        tpe, name, llvm_tpe, size = self.visit(ctx.declarator())
         has_init = (len(ctx.children) == 3)
         if tpe == self.BASE:
             # 分配内存
@@ -123,20 +123,32 @@ class c2llvmVisitor(tinycVisitor):
                 self.symbol_table.addSymbol(name, addr)
                 if has_init:
                     init_val = self.visit(ctx.initializer())
+                    if type(init_val) != ir.Constant: #TODO:check here我觉得问题很大
+                        converted_val = ir.Constant(llvm_tpe,init_val)
+                    else:
+                        converted_val = init_val
                     print('initiaze to ', init_val)
                     print(isinstance(init_val, ir.IntType))
-                    # TODO:数组/字符串首地址,自动转换类型
                     print(type(init_val))
                     print('help me teacher!!',init_val, addr)
-                    self.builder.store(init_val, addr)
+                    self.builder.store(converted_val, addr)
             except Exception as e:
                 raise e
 
-        elif tpe ==self.FUNC :
+        elif tpe == self.FUNC :
             raise Exception("init declarator cannot be a func")
             #TODO: error
-        else:
-            pass
+        elif tpe == self.ARRAY:
+            addr = self.builder.alloca(llvm_tpe)
+            try:
+                self.symbol_table.addSymbol(name, addr)
+                if has_init:
+                    init_val = self.visit(ctx.initializer())
+                    print('initiaze to ', init_val)
+                    # print('help me teacher!!',init_val, addr)
+                    self.builder.store(init_val, addr)
+            except Exception as e:
+                raise e
 
     def visitInitializer(self, ctx:tinycParser.InitializerContext):
         if len(ctx.children) == 1:
@@ -213,22 +225,46 @@ class c2llvmVisitor(tinycVisitor):
     # Visit a parse tree produced by tinycParser#declarator.
     def visitDeclarator(self, ctx:tinycParser.DeclaratorContext):
         """返回_, func_name, func_type, arg_names"""
+        return self.visit(ctx.directDeclarator())
+
+
+    def visitDirectDeclarator(self, ctx:tinycParser.DirectDeclaratorContext):
         if len(ctx.children) == 1:
             # :   IDENTIFIER
             # TODO: 检查这里返回值
             return self.BASE ,ctx.IDENTIFIER().getText(), self.cur_type, []
         else:
-            func_name = ctx.IDENTIFIER().getText()
-            if len(ctx.children) == 4:
-                (arg_names, arg_types), var_arg = self.visit(ctx.parameterTypeList())
-                new_llvm_type = ir.FunctionType(self.cur_type, arg_types, var_arg=var_arg)
-                # 代表有参数列表
-                return self.FUNC, func_name,new_llvm_type, arg_names
-            else:
-                arg_names = []
-                arg_types = []
-                new_llvm_type = ir.FunctionType(self.cur_type, arg_types)
-                return self.FUNC, func_name, new_llvm_type, arg_names
+            op = ctx.children[1].getText()
+            if op == '(':
+                func_name = ctx.children[0].getText()
+                if len(ctx.children) == 4:
+                    (arg_names, arg_types), var_arg = self.visit(ctx.parameterTypeList())
+                    new_llvm_type = ir.FunctionType(self.cur_type, arg_types, var_arg=var_arg)
+                    # 代表有参数列表
+                    return self.FUNC, func_name,new_llvm_type, arg_names
+                else:
+                    arg_names = []
+                    arg_types = []
+                    new_llvm_type = ir.FunctionType(self.cur_type, arg_types)
+                    return self.FUNC, func_name, new_llvm_type, arg_names
+            elif op == '[':
+                arrayname = ctx.children[0].getText()
+                if len(ctx.children) == 4:
+                    try:
+                        num = int(ctx.constantExpression().getText())
+                        llvm_type = ir.PointerType(self.cur_type)
+                        return self.ARRAY, arrayname, llvm_type ,num
+                    except:
+                        raise Exception('only constant value are supported')
+                else:
+                    raise Exception('not supported')
+                    # return self.ARRAY, arrayname, ,None
+
+
+    # Visit a parse tree produced by tinycParser#constantExpression.
+    def visitConstantExpression(self, ctx:tinycParser.ConstantExpressionContext):
+        var, addr = self.visit(ctx.conditionalExpression())
+        return var
 
     # Visit a parse tree produced by tinycParser#parameterTypeList.
     def visitParameterTypeList(self, ctx:tinycParser.ParameterTypeListContext):
@@ -344,6 +380,13 @@ class c2llvmVisitor(tinycVisitor):
                 print('left', left_exp)
                 print('args', args)
                 return self.builder.call(left_exp, args), None
+            elif op == '[':
+                val = self.visit(ctx.expression())
+                print("[]the val is ",val, left_exp)
+                addr = self.builder.gep(left_exp, [val])
+
+                var = self.builder.load(addr)
+                return var, None
             elif op == '++':
                 one = left_exp.type(1)
                 print('one', one)
