@@ -3,6 +3,8 @@
 #include <stdio.h>
 #define TRUE 1
 #define FALSE 0
+#define ADD(a,b,c) a+b+c
+
 
 int strLen(char s[]){
     int i;
@@ -27,12 +29,15 @@ void assertTest(int in, int gt){
     }else{
         printf("test failed!\n");
     }
+    return;
+
 }
 
 void testPalindrome(char s[], int gt){
     printf("--new palindrome test start:\n");
     int output = isPalindrome(s);
     assertTest(output, gt);
+        return;
 }
 
 void unittest(){
@@ -44,6 +49,8 @@ void unittest(){
     testPalindrome("aaaaaaaaa", TRUE);
     testPalindrome("aaaabaaaa", TRUE);
     testPalindrome("aaabaaaa", FALSE);
+    printf("%d",ADD(1,2,3));
+    return;
 }
 
 int main(){

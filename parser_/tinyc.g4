@@ -6,13 +6,17 @@ https://cs.wmich.edu/~gupta/teaching/cs4850/sumII06/The%20syntax%20of%20C%20in%2
 grammar tinyc;
 /*------------------------parser------------------------------*/
 program //程序入口
-   : (include)* translationUnit+ EOF
+   : (include|define)* translationUnit+ EOF
    ;
 
 include //include文件 TODO:支持define预编译
    : '#include' '<' LIB '>'
    | '#include' '\'' LIB '\''
    ;
+
+define
+    : '#define' IDENTIFIER  (CONSTANT | IDENTIFIER)
+    ;
 
 translationUnit //非头部文件
    : function
@@ -272,4 +276,4 @@ BlockComment: '/*' .*? '*/'   -> skip;
 
 LineComment: '//' ~[\r\n]*   -> skip;
 
-WS: [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines
+WS: [ \t\r\n]+->skip; // skip spaces, tabs, newlines
