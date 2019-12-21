@@ -100,7 +100,7 @@ class c2llvmVisitor(tinycVisitor):
     def visitDeclaration(self, ctx:tinycParser.DeclarationContext):
         var_type = self.visit(ctx.typeSpecifier())
         self.cur_type = var_type
-
+        print('var_type:', var_type)
         init_list = self.visit(ctx.initDeclaration())
 
     # Visit a parse tree produced by tinycParser#initDeclaration.
@@ -147,11 +147,10 @@ class c2llvmVisitor(tinycVisitor):
                 if has_init:
                     init_val = self.visit(ctx.initializer())
                     if isinstance(init_val, list):
-                        converted_val = ir.Constant(var_type, var_name)
+                        converted_val = ir.Constant(var_type, init_val)
                     print('Array initiaze to ', init_val, type(init_val))
                     self.builder.store(converted_val, addr)
-                    # print('help me teacher!!',init_val, addr)
-                    # self.builder.store(init_val, addr)
+                    print('self.builder.module', self.builder.block.instructions)
             except Exception as e:
                 raise e
 
@@ -162,10 +161,8 @@ class c2llvmVisitor(tinycVisitor):
             return self.visit(ctx.initializerList())
 
     def visitInitializerList(self, ctx:tinycParser.InitializerListContext):
-        print('visitInitializerList')
+        print('visitInitializerList', ctx.children)
         init_list = []
-        for i in ctx.children:
-            print(i.getText())
         if len(ctx.children) != 1:
             init_list = self.visit(ctx.initializerList())
         init_list.append(self.visit(ctx.initializer()))
@@ -243,7 +240,16 @@ class c2llvmVisitor(tinycVisitor):
     # Visit a parse tree produced by tinycParser#declarator.
     def visitDeclarator(self, ctx:tinycParser.DeclaratorContext):
         """返回_, func_name, func_type, arg_names"""
-        return self.visit(ctx.directDeclarator())
+        tpe, name, llvm_type, arg = self.visit(ctx.directDeclarator())
+        if tpe == self.ARRAY:
+            # for size in reversed(arg):
+            print('before llvm_type:', llvm_type, arg)
+            llvm_type = ir.ArrayType(element=llvm_type, count=int(arg))
+            print('llvm_type:', llvm_type, arg)
+            return tpe, name, llvm_type, []
+        else:
+            return tpe, name, llvm_type, arg
+
 
 
     def visitDirectDeclarator(self, ctx:tinycParser.DirectDeclaratorContext):
@@ -274,9 +280,9 @@ class c2llvmVisitor(tinycVisitor):
                 if len(ctx.children) == 4:
                     try:
                         arraynum = int(ctx.constantExpression().getText())
-                        llvm_type = ir.PointerType(old_type)
-                        print('return ARRAY', self.ARRAY, arrayname, llvm_type, arraynum)
-                        return self.ARRAY, arrayname, llvm_type, arraynum
+                        # llvm_type = ir.PointerType(old_type)
+                        # print('return ARRAY', self.ARRAY, arrayname, llvm_type, arraynum)
+                        return self.ARRAY, arrayname, old_type, arraynum
                     except:
                         raise Exception('only constant value are supported')
                 else:
