@@ -63,6 +63,7 @@ class c2llvmVisitor(tinycVisitor):
             raise Exception("redefine function error!")
         else:
             llvm_func = ir.Function(self.module, func_type, name=func_name)
+            print("func is", func_name, func_type)
             self.symbol_table.addSymbol(func_name, llvm_func)
             self.builder = ir.IRBuilder(llvm_func.append_basic_block(name=".entry"))
         self.symbol_table.enterScope()
@@ -185,6 +186,7 @@ class c2llvmVisitor(tinycVisitor):
             if getRuleName(ctx.children[child_idx]) == 'expression':
                 cond_val = self.visit(ctx.children[child_idx])
                 print('cond_val',cond_val.flags)
+                cond_val = whether_is_true(self.builder, cond_val)
                 buf = cond_val.get_reference()
 
                 buf = LLVMTypes.bool(buf)
@@ -237,31 +239,33 @@ class c2llvmVisitor(tinycVisitor):
             return self.BASE ,ctx.IDENTIFIER().getText(), self.cur_type, []
         else:
             op = ctx.children[1].getText()
+            # 函数
+            old_type = self.cur_type
             if op == '(':
                 func_name = ctx.children[0].getText()
                 if len(ctx.children) == 4:
                     (arg_names, arg_types), var_arg = self.visit(ctx.parameterTypeList())
-                    new_llvm_type = ir.FunctionType(self.cur_type, arg_types, var_arg=var_arg)
+                    new_llvm_type = ir.FunctionType(old_type, arg_types, var_arg=var_arg)
                     # 代表有参数列表
                     return self.FUNC, func_name,new_llvm_type, arg_names
                 else:
                     arg_names = []
                     arg_types = []
-                    new_llvm_type = ir.FunctionType(self.cur_type, arg_types)
+                    new_llvm_type = ir.FunctionType(old_type, arg_types)
                     return self.FUNC, func_name, new_llvm_type, arg_names
             elif op == '[':
                 arrayname = ctx.children[0].getText()
                 if len(ctx.children) == 4:
                     try:
                         num = int(ctx.constantExpression().getText())
-                        llvm_type = ir.PointerType(self.cur_type)
+                        llvm_type = ir.PointerType(old_type)
                         return self.ARRAY, arrayname, llvm_type ,num
                     except:
                         raise Exception('only constant value are supported')
                 else:
                     arrayname = ctx.children[0].getText()
-                    print("current type", self.cur_type)
-                    llvm_type = ir.PointerType(self.cur_type)
+                    print("current type", old_type)
+                    llvm_type = ir.PointerType(old_type)
                     print("param type", llvm_type)
                     return self.ARRAY, arrayname, llvm_type, None
                     # return self.ARRAY, arrayname, ,None
@@ -312,6 +316,8 @@ class c2llvmVisitor(tinycVisitor):
     def visitSelectionStatement(self, ctx: tinycParser.SelectionStatementContext):
         if ctx.children[0].getText() == 'if':
             value = self.visit(ctx.children[2])
+            value = whether_is_true(self.builder, value)
+            value = value.get_reference()
             condition = ir.IntType(1)(value)
             self.symbol_table.enterScope()
             if len(ctx.children) > 5:

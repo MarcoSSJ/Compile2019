@@ -115,31 +115,12 @@ def getRuleName(node):
         return 'None'
 
 
-def case_to_llvm_type(builder, target_type, value):
-    if value.type == target_type:
-        return value
-    elif self.is_int(value.type) and self.is_int(target_type):
-        if value.type.width < target_type.width:
-            return builder.sext(value, target_type)
-        elif target_type == self.int1:
-            return builder.icmp_unsigned('!=', value, self.to_llvm_const(self.int1, 0))
-        else:
-            return builder.trunc(value, target_type)
-    elif self.is_float(value.type) and self.is_float(target_type):
-        if value.type == self.float32:
-            return builder.fpext(value, target_type)
-        else:
-            return builder.fptrunc(value, target_type)
-    elif self.is_float(value.type) and self.is_int(target_type):
-        return builder.fptosi(value, target_type)
-    elif self.is_int(value.type) and self.is_float(target_type):
-        return builder.sitofp(value, target_type)
-    elif type(value.type) == ir.ArrayType and type(target_type) == ir.PointerType and value.type.element == target_type.pointee:
-        zero = self.to_llvm_const(self.int32, 0)
-        tmp = builder.alloca(value.type)
-        builder.store(value, tmp)
-        return builder.gep(tmp, [zero, zero])
-    elif isinstance(value.type, ir.ArrayType) and isinstance(target_type, ir.ArrayType) and value.type.element == target_type.element:
-        return builder.bitcast(value, target_type)
-    else:
-        print("No known conversion from '%s' to '%s'\n" % (value.type, target_type))
+def whether_is_true(builder, inval):
+    """
+    generate a int1 value from inval
+    :param builder:the builder for llvm
+    :param inval: the input value
+    :return:
+    """
+    var = builder.icmp_unsigned('!=', inval, LLVMTypes.bool(0))
+    return var
