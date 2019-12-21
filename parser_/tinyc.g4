@@ -77,6 +77,7 @@ statement //表达式,TODO: 暂时只支持函数和return和{}
     | selectionStatement
     ;
 
+
 returnStatement
     : 'return' expression? ';'
     ;
@@ -101,7 +102,7 @@ expression //语句表达式
 
 assignmentExpression //TODO:暂时只支持后缀表达式,表示一个值
    : conditionalExpression
-   | postfixExpression assignmentOperator assignmentExpression   
+   | unaryExpression assignmentOperator assignmentExpression
    ;
 
 postfixExpression //() [] 为后缀的表达式,TODO:暂时只支持函数,只支持接收一个函数参数值

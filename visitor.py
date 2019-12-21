@@ -282,11 +282,11 @@ class c2llvmVisitor(tinycVisitor):
                 with self.builder.if_then(condition):
                     self.visit(ctx.children[4])
             self.symbol_table.exitScope()
-/
+
     # Visit a parse tree produced by tinycParser#assignmentExpression.
     def visitAssignmentExpression(self, ctx:tinycParser.AssignmentExpressionContext):
         if(len(ctx.children)) == 3:
-            var, addr = self.visit(ctx.postfixExpression())
+            var, addr = self.visit(ctx.unaryExpression())
             op = ctx.getChild(1).getText()
             val = self.visit(ctx.assignmentExpression())
             if op == "=":
@@ -382,6 +382,7 @@ class c2llvmVisitor(tinycVisitor):
             elif text == '-':
                 neg = self.builder.neg(val)
                 return neg, None
+
     # Visit a parse tree produced by tinycParser#multiplicativeExpression.
     def visitMultiplicativeExpression(self, ctx: tinycParser.MultiplicativeExpressionContext):
         if len(ctx.children) == 1:
