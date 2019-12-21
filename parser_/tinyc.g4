@@ -57,6 +57,27 @@ initDeclarator //初始化单元
 
 initializer //TODO:支持数组初始化
     : assignmentExpression
+    | '{' initializerList '}'
+    | '{' initializerList ',' '}'
+    ;
+
+initializerList
+    :   designation? initializer
+    |   initializerList ',' designation? initializer
+    ;
+
+designation
+    :   designatorList '='
+    ;
+
+designatorList
+    :   designator
+    |   designatorList designator
+    ;
+
+designator
+    :   '[' constantExpression ']'
+    |   '.' IDENTIFIER
     ;
 
 declarator //初始化单元具体内容
@@ -66,7 +87,7 @@ declarator //初始化单元具体内容
 directDeclarator
     :  IDENTIFIER
     |  directDeclarator '(' parameterTypeList? ')'
-    |  directDeclarator '[' constantExpression? ']'
+    |  directDeclarator '[' constantExpression ']'
     ;
 
 constantExpression
