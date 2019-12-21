@@ -15,7 +15,7 @@ include //include文件 TODO:支持define预编译
    ;
 
 define
-    : '#define' IDENTIFIER IDENTIFIER
+    : '#define' IDENTIFIER (CONSTANT | IDENTIFIER)
     ;
 
 translationUnit //非头部文件
