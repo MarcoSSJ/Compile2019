@@ -16,6 +16,7 @@ class preCompiler(preCompileVisitor):
         self.table = table
         self.f = open(output, 'w')
         self.define = []
+        self.find_params = False ##using when find a macro func
         pass
 
     def StringCtx(self, ctx):
@@ -25,7 +26,6 @@ class preCompiler(preCompileVisitor):
             if text:
                 s += text + ' '
             else:
-                print(child.getText())
                 s += child.getText() + ' '
         return s
 
@@ -169,15 +169,36 @@ class preCompiler(preCompileVisitor):
                 s = ''.join(mlist.tokens)
                 return s
 
-        elif len(ctx.children) == 3 and ctx.children[1].getText() == '(':
-            return self.StringCtx(ctx) #TODO: implement
+        elif ctx.children[1].getText() == '(':
+            text = ctx.postfixExpression().getText()
+            print("the macro func can be ", text)
+            mlist = self.table.table.get(text)
+            if mlist and len(ctx.children) == 4:
+                self.find_params = True
+                arglist = self.visit(ctx.argumentExpressionList())
+                mlist = self.table.table.get(text)
+                s = mlist.complicateTokenStream(arglist)
+                self.find_params = False
+                return s
+            else:
+                return self.StringCtx(ctx)
         else:
             return self.StringCtx(ctx)
 
 
     # Visit a parse tree produced by tinycParser#argumentExpressionList.
     def visitArgumentExpressionList(self, ctx:tinycParser.ArgumentExpressionListContext):
-        return self.StringCtx(ctx)
+        if self.find_params:
+            if len(ctx.children) == 1:
+                arg_list = []
+            else:
+                arg_list = self.visit(ctx.argumentExpressionList())
+            arg = self.visit(ctx.assignmentExpression())
+            print('arg is ', arg)
+            arg_list.append(arg)
+            return arg_list
+        else:
+            return self.StringCtx(ctx)
 
 
     # Visit a parse tree produced by tinycParser#unaryExpression.

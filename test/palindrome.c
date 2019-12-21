@@ -3,7 +3,7 @@
 #include <stdio.h>
 #define TRUE 1
 #define FALSE 0
-#define IDTEST(a,b,c) a,b,c
+#define ADD(a,b,c) a + b + c
 
 
 int strLen(char s[]){
@@ -46,6 +46,7 @@ void unittest(){
     testPalindrome("aaaaaaaaa", TRUE);
     testPalindrome("aaaabaaaa", TRUE);
     testPalindrome("aaabaaaa", FALSE);
+    printf("%d",ADD(1,2,3));
 }
 
 int main(){

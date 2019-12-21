@@ -28,14 +28,19 @@ class MacroVisitor(CmacrosVisitor):
     def visitPp_define(self, ctx:CmacrosParser.Pp_defineContext):
         mlist = MacroList()
         first = True
-        for i in ctx.ID():
+        name = None
+        for idx, i in enumerate(ctx.ID()):
             if first:
-                self.table.table[i.getText()] = mlist
+                name = i.getText()
+                self.table.table[name] = mlist
+                first = False
             else:
-                mlist.params[i.getText()] = None
+                mlist.params[i.getText()] = idx - 1
         mlist.tokens = self.visit(ctx.token_sequence())
-        print(len(mlist.params))
-        print(len(mlist.tokens))
+        print(name )
+        print(len(mlist.params),         ''.join(mlist.params.keys()))
+
+        print(len(mlist.tokens),  ''.join(mlist.tokens))
         # print(ctx.token_sequence().getText())
         return self.visitChildren(ctx)
 

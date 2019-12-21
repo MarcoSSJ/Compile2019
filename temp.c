@@ -7,4 +7,5 @@ int  strLen  ( char  s  [ ]      )   { int  i     ;   for ( i  =  0             
                )                ;    testPalindrome ( "aaaaaaaaa"               , 1
                )                ;    testPalindrome ( "aaaabaaaa"               , 1
                )                ;    testPalindrome ( "aaabaaaa"               , 0
+               )                ;    printf ( "%d"               , 1             +2             +3             
                )                ;    }    int  main  ( )   { unittest ( )                ;    return 0               ;    }    
