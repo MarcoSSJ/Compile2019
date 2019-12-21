@@ -17,3 +17,11 @@ parser_/tinycVisitor.py
 precompile/.antlr/
 output.ll
 tinyc.g4
+precompile/preCompile.interp
+precompile/preCompile.tokens
+precompile/preCompileLexer.interp
+precompile/preCompileLexer.py
+precompile/preCompileLexer.tokens
+precompile/preCompileListener.py
+precompile/preCompileParser.py
+precompile/preCompileVisitor.py

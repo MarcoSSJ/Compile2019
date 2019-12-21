@@ -8,6 +8,11 @@ from antlr4 import *
 import llvmlite.ir as ir
 from visitor import c2llvmVisitor
 from preCompiler import preCompiler
+
+from precompile.postCompileLexer import postCompileLexer
+from precompile.postCompileParser import postCompileParser
+from precompile.postCompileVisitor import postCompileVisitor
+
 import re
 
 def preCompile(filename, output):
@@ -22,15 +27,28 @@ def preCompile(filename, output):
     # walker = ParseTreeWalker()
     # walker.walk(my_listener, tree)
     my_visitor.visit(tree)
-    print('my_visitor.define', my_visitor.define)
-    output_str = str(input_stream)
-    for cname, define in my_visitor.define:
-        # replace the define
-        str_re = re.compile(cname)
-        output_str = str_re.sub(define, output_str)
-    output_str = re.compile('#define.*\n').sub('', output_str)
-    with open(output, "w") as f:
-        f.write(output_str)
+
+
+    # post cannot cope with comment
+    # input_stream = FileStream(filename)
+    # print(input_stream, type(input_stream), str(input_stream))
+    # lexer = postCompileLexer(input_stream)
+    # token_stream = CommonTokenStream(lexer)
+    # parser = postCompileParser(token_stream)
+    # tree = parser.statement()
+    # visitor = postCompileVisitor()
+    # visitor.visit(tree)
+
+
+    # print('my_visitor.define', my_visitor.define)
+    # output_str = str(input_stream)
+    # for cname, define in my_visitor.define:
+    #     # replace the define
+    #     str_re = re.compile(cname)
+    #     output_str = str_re.sub(define, output_str)
+    # output_str = re.compile('#define.*\n').sub('', output_str)
+    # with open(output, "w") as f:
+    #     f.write(output_str)
 
 def main(filename, output):
     #input_stream = FileStream('temp.c')
@@ -48,8 +66,9 @@ def main(filename, output):
         f.write(repr(my_visitor.module))
 
 
-#filename = 'test/palindrome.c'
+filename = 'test/palindrome.c'
 temp = 'temp.c'
 output = 'output.ll'
-#preCompile(filename, temp)
-main(temp, output)
+output2 = "output"
+preCompile(temp, output2)
+# main(temp, output)

@@ -1,228 +1,71 @@
 
-/*
-https://cs.wmich.edu/~gupta/teaching/cs4850/sumII06/The%20syntax%20of%20C%20in%20Backus-Naur%20form.htm
- */
-
 grammar preCompile;
-/*------------------------parser------------------------------*/
-program //程序入口
-   : (include)* (define)* translationUnit+ EOF
-   ;
+// parser rules must start with lower case.
 
-include //include文件 TODO:支持define预编译
-   : '#include' '<' LIB '>'
-   | '#include' '\'' LIB '\''
-   ;
+import preLexer;
 
-define
-    : '#define' IDENTIFIER (CONSTANT | IDENTIFIER)
-    ;
+//@lexer::members {
+//    public const int CHANNEL_COMMENT_BLOCK = 1;
+//    public const int CHANNEL_COMMENT_LINE = 2;
+//    protected const int EOF = Eof;
+//    protected const int HIDDEN = Hidden;
+//}
 
-translationUnit //非头部文件
-   : function
-   | declaration
-   ;
 
-function //函数代码
-   : typeSpecifier declarator compoundStatement //TODO:应该有declaration
-   ;
+program        :    statement*    EOF    ;
 
-typeSpecifier //类别定义 TODO: 支持更多定义 支持static/const
-    : 'int'
-    | 'char'
-    | 'void'
-    ;
+statement    :    preprocess
+            |    ( COMMENT_BLOCK | COMMENT_LINE )
+            |    STRING                        // ignore
+            |    ( ppChars | NEWLINE )        // ignore
+            ;
 
-compoundStatement //函数中复合语句
-   : '{' compoundUnit* '}'
-   ;
+// pp means preprocess
+preprocess    :    ppInclude
+            |    ppDefineFunc    // this must be before ppDefineVar: eg. #define AAA  ( a ) 
+            |    ppDefineVar
+            |    ppUndef
+            |    ppPragma
+            |    ppError
+            |    ppIfStatement
+            ;
 
-compoundUnit//单元
-   : declaration
-   | statement
-   ;
+ppChars        :    ( STRING | WS | PREPROCESS_BEGIN | DEFINED | ID | COMMA | PAREN_OPEN | PAREN_CLOSE | CHAR )+    ;
 
-declaration // 定义语句
-   : typeSpecifier initDeclaration ';'
-   ;
+ppInclude    :    PREPROCESS_BEGIN    WS*    PREPROCESS_INCLUDE    WS*    ppChars    WS*    ( NEWLINE | EOF )    ;
+ppPragma    :    PREPROCESS_BEGIN    WS*    PREPROCESS_PRAGMA    WS*    ppChars    WS*    ( NEWLINE | EOF )    ;
+ppError        :    PREPROCESS_BEGIN    WS*    PREPROCESS_ERROR    WS*    ppChars    WS*    ( NEWLINE | EOF )    ;
 
-initDeclaration //初始化部分
-    : initDeclarator (',' initDeclarator)*
-    ;
+ppUndef            :    PREPROCESS_BEGIN    WS*    PREPROCESS_UNDEF    WS+    ID                            WS*    ( NEWLINE | EOF )    ;
+ppDefineVar        :    PREPROCESS_BEGIN    WS*    PREPROCESS_DEFINE    WS+    ID        ( WS+    ppChars )?    WS*    ( NEWLINE | EOF )    ;
+ppDefineFunc    :    PREPROCESS_BEGIN    WS*    PREPROCESS_DEFINE    WS+    ppdfId    WS*    ppdfChars        WS*    ( NEWLINE | EOF )    ;
 
-initDeclarator //初始化单元
-    :   declarator
-    |   declarator '=' initializer
-    ;
+// ppdfi means preprocess define function ID
+ppdfId            :    ID    PAREN_OPEN    WS*    ppdfiArguments    WS*    PAREN_CLOSE    ;    // WS between ID and '(' is not allowed.
+ppdfiArguments    :    ppdfiArgument    ( WS*    COMMA    WS*    ppdfiArgument    )*    ;    // at least 1 argument is required.
+ppdfiArgument    :    ID    ;
 
-initializer //TODO:支持数组初始化
-    :   assignmentExpression
-    ;
+// ppdfc means preprocess define function characters
+ppdfChars    :    ( ppdfcId | ppdfcNotId )+    ;
+ppdfcId        :    ID    ;
+ppdfcNotId    :    ( STRING | WS | PREPROCESS_BEGIN | DEFINED | COMMA | PAREN_OPEN | PAREN_CLOSE | CHAR )    ;
 
-declarator //初始化单元具体内容
-    :   IDENTIFIER
-    |   IDENTIFIER '(' parameterTypeList? ')'
-    ;
 
-parameterTypeList //函数参数列表
-   :  parameterList (',' '...')? ;
+ppIfStatement    :    ( /*ppisIF |*/ ppisIfDef | ppisIfNdef )    ;
 
-parameterList //函数参数列表具体内容
-   :   parameterDeclaration (',' parameterDeclaration)* ;
+//ppisIF            :    PREPROCESS_BEGIN    WS*    PREPROCESS_IF        WS+    ppChars    WS*    NEWLINE            ppisStatement    ppisElifElseEndif    ;
+//ppisElif        :    PREPROCESS_BEGIN    WS*    PREPROCESS_ELIF        WS+    ppChars    WS*    NEWLINE            ppisStatement    ppisElifElseEndif    ;
+//ppisElse        :    PREPROCESS_BEGIN    WS*    PREPROCESS_ELSE                    WS*    NEWLINE            ppisStatement    ppisEndif    ;
+//ppisEndif        :    PREPROCESS_BEGIN    WS*    PREPROCESS_ENDIF                WS*    (NEWLINE|EOF)    ;
+ppisIfDef        :    PREPROCESS_BEGIN    WS*    PREPROCESS_IFDEF    WS+    ID        WS*    NEWLINE            ppisStatement;
+// ppisElseEndif    ;
+ppisIfNdef        :    PREPROCESS_BEGIN    WS*    PREPROCESS_IFNDEF    WS+    ID        WS*    NEWLINE            ppisStatement;
+// ppisElseEndif    ;
 
-parameterDeclaration //函数参数列表声明
-   :   typeSpecifier declarator ;
-
-statement //表达式,TODO: 暂时只支持函数和return和{}
-   : compoundStatement
-   |  returnStatement
-   | expressionStatement
-   | iterationStatement
-   ;
-
-returnStatement
-    :  'return' expression? ';'
-    ;
-
-expressionStatement
-    : expression? ';'
-    ;
-
-iterationStatement
-    : 'for' '(' expression? ';' expression? ';' expression? ')' statement
-    | 'for' '(' declaration expression? ';' expression? ')' statement
-    ;
-
-expression //语句表达式
-   : assignmentExpression (',' assignmentExpression)*
-   ;
-
-assignmentExpression //TODO:暂时只支持后缀表达式,表示一个值
-   : conditionalExpression
-   | postfixExpression assignmentOperator assignmentExpression   
-   ;
-
-postfixExpression //() [] 为后缀的表达式,TODO:暂时只支持函数,只支持接收一个函数参数值
-   : primaryExpression
-   | postfixExpression '(' argumentExpressionList? ')'
-   ;
-
-argumentExpressionList
-    : assignmentExpression
-    | argumentExpressionList ',' assignmentExpression
-    ;
-
-multiplicativeExpression
-    :   postfixExpression
-    |   multiplicativeExpression '*' postfixExpression
-    |   multiplicativeExpression '/' postfixExpression
-    |   multiplicativeExpression '%' postfixExpression
-    ;
-
-additiveExpression
-    :   multiplicativeExpression
-    |   additiveExpression '+' multiplicativeExpression
-    |   additiveExpression '-' multiplicativeExpression
-    ;
-
-shiftExpression
-    :   additiveExpression
-    |   shiftExpression '<<' additiveExpression
-    |   shiftExpression '>>' additiveExpression
-    ;
-
-relationalExpression
-    :   shiftExpression
-    |   relationalExpression '<' shiftExpression
-    |   relationalExpression '>' shiftExpression
-    |   relationalExpression '<=' shiftExpression
-    |   relationalExpression '>=' shiftExpression
-    ;
-
-equalityExpression
-    :   relationalExpression
-    |   equalityExpression '==' relationalExpression
-    |   equalityExpression '!=' relationalExpression
-    ;
-
-andExpression
-    :   equalityExpression
-    |   andExpression '&' equalityExpression
-    ;
-
-exclusiveOrExpression
-    :   andExpression
-    |   exclusiveOrExpression '^' andExpression
-    ;
-
-inclusiveOrExpression
-    :   exclusiveOrExpression
-    |   inclusiveOrExpression '|' exclusiveOrExpression
-    ;
-
-logicalAndExpression
-    :   inclusiveOrExpression
-    |   logicalAndExpression '&&' inclusiveOrExpression
-    ;
-
-logicalOrExpression
-    :   logicalAndExpression
-    |   logicalOrExpression '||' logicalAndExpression
-    ;
-
-conditionalExpression
-    :   logicalOrExpression ('?' expression ':' conditionalExpression)?
-    ;
-
-assignmentOperator
-    :   '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '&=' | '^=' | '|='
-    ;
-
-primaryExpression
-   :  IDENTIFIER
-   |  mString
-   |  CONSTANT
-   ;
-
-/*------------------------lexer------------------------------*/
-IDENTIFIER
-   :[a-zA-Z_]  (   [a-zA-Z_]  |   [0-9])*;
-
-mString
-    :STRING
-    ;
-
-STRING
-   : '"' CHARSEQ? '"' | '\'' CHAR '\''
-   ;
-
-fragment //WARNING!: 这里必须式fragment 否则由于
-//https://stackoverflow.com/questions/29777778/antlr-4-5-mismatched-input-x-expecting-x
-//https://stackoverflow.com/questions/17715217/antlr4-mismatched-input
-//所述错误识别
-CHARSEQ
-   : CHAR+
-   ;
-
-fragment
-CHAR //暂不支持多行
-    :   ~["\\\r\n]
-    |   '\\' ['"?abfnrtv0\\]
-    ;
-
-CONSTANT
-   : [0-9]+
-   ;
-
-LIB : [a-zA-Z]+'.h'?;
-
-/*------------------------注释------------------------------*/
-//Whitespace  :(' ' | '\t')+  -> skip;
-//
-//Newline  :(   '\r' '\n'?   |   '\n')  -> skip;
-
-BlockComment    :'/*' .*? '*/'   -> skip;
-
-LineComment   :'//' ~[\r\n]*   -> skip;
-
-WS : [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines
+ppisStatement        :    statement*    ;
+//ppisElifElseEndif    :    ppisElif
+//                    |    ppisElseEndif
+//                    ;
+//ppisElseEndif        :    ppisElse
+//                    |    ppisEndif
+//                    ;
