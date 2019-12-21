@@ -21,6 +21,8 @@
 3. palindrone
 
    1. 处理#define
+      1. define函数
+      2. include复制
    2. ~~函数定义~~
    3. ~~if ifelse判断~~
    4. ~~字符串数组取下标~~
