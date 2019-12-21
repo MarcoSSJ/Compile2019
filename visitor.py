@@ -244,9 +244,14 @@ class c2llvmVisitor(tinycVisitor):
         if tpe == self.ARRAY:
             # for size in reversed(arg):
             print('before llvm_type:', llvm_type, arg)
-            llvm_type = ir.ArrayType(element=llvm_type, count=int(arg))
-            print('llvm_type:', llvm_type, arg)
-            return tpe, name, llvm_type, []
+            cnt = 0
+            if arg:
+                cnt = int(arg)
+                llvm_type = ir.ArrayType(element=llvm_type, count=cnt)
+                print('llvm_type:', llvm_type, arg)
+                return tpe, name, llvm_type, []
+            else:
+                return tpe, name, llvm_type, arg
         else:
             return tpe, name, llvm_type, arg
 

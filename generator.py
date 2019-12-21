@@ -1,19 +1,16 @@
 from parser_.tinycLexer import tinycLexer
 from parser_.tinycListener import tinycListener
 from parser_.tinycParser import tinycParser
-from precompile.preCompileParser import preCompileParser
-from precompile.preCompileLexer import preCompileLexer
-from precompile.preCompileVisitor import preCompileVisitor
 from antlr4 import *
 import llvmlite.ir as ir
 from visitor import c2llvmVisitor
-from preCompiler import preCompiler
 import re
 from preprocess.CmacrosVisitor import CmacrosVisitor
 from preprocess.CmacrosLexer import CmacrosLexer
 from preprocess.CmacrosParser import CmacrosParser
 from macro import MacroVisitor
 from MacroTable import  MacroTable
+from preCompiler import preCompiler
 
 def cleaninclude(filename, output):
     """用来将#开头的行消除"""
@@ -75,7 +72,7 @@ def main(filename, output):
 
 
 
-filename = 'test/palindrome.c'
+filename = 'test/array.c'
 temp = 'temp.c'
 output = 'output.ll'
 preCompile(filename, temp)

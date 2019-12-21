@@ -2,16 +2,16 @@
 预编译阶段,进行IDENTIFIER的值替换
 """
 from antlr4 import *
-from precompile.preCompileLexer import preCompileLexer
-from precompile.preCompileListener import preCompileListener
-from precompile.preCompileParser import preCompileParser
-from precompile.preCompileVisitor import preCompileVisitor
+from parser_.tinycLexer import tinycLexer
+from parser_.tinycListener import tinycListener
+from parser_.tinycParser import tinycParser
+from parser_.tinycVisitor import  tinycVisitor
 from util import *
 from MacroTable import MacroTable,MacroList
 # This class defines a complete generic visitor for a parse tree produced by tinycParser.
 
 
-class preCompiler(preCompileVisitor):
+class preCompiler(tinycVisitor):
 
     def __init__(self, output:str, table:MacroTable):
         super(preCompiler, self).__init__()
@@ -53,7 +53,7 @@ class preCompiler(preCompileVisitor):
     def visitInclude(self, ctx:tinycParser.IncludeContext):
         pass
 
-    def visitDefine(self, ctx:preCompileParser.DefineContext):
+    def visitDefine(self, ctx:tinycParser.DefineContext):
         pass
 
     # Visit a parse tree produced by tinycParser#translationUnit.
@@ -282,4 +282,22 @@ class preCompiler(preCompileVisitor):
 
     # Visit a parse tree produced by tinycParser#mString.
     def visitMString(self, ctx:tinycParser.MStringContext):
+        return self.StringCtx(ctx)
+
+    def visitInitializerList(self, ctx:tinycParser.InitializerListContext):
+        return self.StringCtx(ctx)
+
+
+    # Visit a parse tree produced by tinycParser#designation.
+    def visitDesignation(self, ctx:tinycParser.DesignationContext):
+        return self.StringCtx(ctx)
+
+
+    # Visit a parse tree produced by tinycParser#designatorList.
+    def visitDesignatorList(self, ctx:tinycParser.DesignatorListContext):
+        return self.StringCtx(ctx)
+
+
+    # Visit a parse tree produced by tinycParser#designator.
+    def visitDesignator(self, ctx:tinycParser.DesignatorContext):
         return self.StringCtx(ctx)
