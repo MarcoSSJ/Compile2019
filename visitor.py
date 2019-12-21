@@ -22,6 +22,9 @@ class c2llvmVisitor(tinycVisitor):
         self.module.triple = "x86_64-unknown-linux-gnu" # llvm.Target.from_default_triple()
         self.module.data_layout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 
+        self.break_block = None
+        self.continue_block = None
+
         # 符号表
         self.symbol_table = SymbolTable()
         printf_type = ir.FunctionType(LLVMTypes().int32, [ir.PointerType(LLVMTypes().int8)], var_arg=True)
@@ -142,6 +145,12 @@ class c2llvmVisitor(tinycVisitor):
         if len(ctx.children) == 1:
             return self.visit(ctx.assignmentExpression())
 
+    # Visit a parse tree produced by tinycParser#jumpStatement.
+    def visitJumpStatement(self, ctx: tinycParser.JumpStatementContext):
+        if ctx.children[0].getText() == 'continue':
+            self.builder.branch(self.continue_block)
+        elif ctx.children[0].getText() == 'continue':
+            self.builder.branch(self.break_block)
 
     def visitIterationStatement(self, ctx:tinycParser.IterationStatementContext):
         self.symbol_table.enterScope()
@@ -165,12 +174,17 @@ class c2llvmVisitor(tinycVisitor):
             update_block = self.builder.append_basic_block(name=prefix+".loop_update")
             end_block = self.builder.append_basic_block(name=prefix+".loop_end")
 
+            before_break_block = self.break_block
+            self.break_block = end_block
+            before_continue_block = self.continue_block
+            self.continue_block = update_block
+
             self.builder.branch(cond_block)
             self.builder.position_at_start(cond_block)
 
             if getRuleName(ctx.children[child_idx]) == 'expression':
                 cond_val = self.visit(ctx.children[child_idx])
-                print('cond_val',cond_val.flags)
+                print('cond_val', cond_val.flags)
                 buf = cond_val.get_reference()
 
                 buf = LLVMTypes.bool(buf)
@@ -193,6 +207,11 @@ class c2llvmVisitor(tinycVisitor):
             self.visit(ctx.children[child_idx])
             self.builder.branch(update_block)
             self.builder.position_at_start(end_block)
+
+            self.continue_block = before_continue_block
+            self.break_block = before_break_block
+
+            self.symbol_table.exitScope()
             #TODO: continue break[-=/        return self.visitChildren(ctx)
 
     # Visit a parse tree produced by tinycParser#returnStatement.

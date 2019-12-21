@@ -70,11 +70,13 @@ parameterDeclaration //函数参数列表声明
    :   typeSpecifier declarator ;
 
 statement //表达式,TODO: 暂时只支持函数和return和{}
-   : compoundStatement
-   |  returnStatement
-   | expressionStatement
-   | iterationStatement
-   ;
+    : compoundStatement
+    | returnStatement
+    | expressionStatement
+    | iterationStatement
+    | selectionStatement
+    | jumpStatement
+    ;
 
 returnStatement
     :  'return' expression? ';'
@@ -82,6 +84,16 @@ returnStatement
 
 expressionStatement
     : expression? ';'
+    ;
+
+jumpStatement
+    : 'continue' ';'
+    | 'break' ';'
+    ;
+
+selectionStatement
+    : 'if' '(' expression ')' statement ('else' statement)?
+    | 'switch' '(' expression ')' statement
     ;
 
 iterationStatement
