@@ -18,8 +18,8 @@ int main(){
 //    }
     char c[5] = "abcd\0";
     printf("%s", c);
-    printf("%c", c[1]);
-//    char d = c[1];s
+    int d = 1;
+    printf("%c", c[d]);
 
 //    testMulti();
     return 0;
