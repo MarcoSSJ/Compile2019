@@ -1,3 +1,4 @@
+"""根据macro生成MacroTable数据结构"""
 from preprocess.CmacrosVisitor import CmacrosVisitor
 from preprocess.CmacrosParser import CmacrosParser
 from MacroTable import MacroList, MacroTable

@@ -16,6 +16,7 @@ from macro import MacroVisitor
 from MacroTable import  MacroTable
 
 def cleaninclude(filename, output):
+    """用来将#开头的行消除"""
     f = open(filename)
     of = open(output, 'w')
     for line in f.readlines():
@@ -25,7 +26,7 @@ def cleaninclude(filename, output):
 
 
 def preCompile(filename, output):
-    """generate the table """
+    """generate the macro table """
     table = MacroTable()
     input_stream = FileStream(filename)
     lexer = CmacrosLexer(input_stream)
@@ -34,9 +35,8 @@ def preCompile(filename, output):
     tree = parser.program()
     my_visitor = MacroVisitor(table)
     my_visitor.visit(tree)
-
-
     cleaninclude(filename, 'temp')
+
     """clean the #part include and match to change macro"""
     input_stream = FileStream('temp')
     lexer = tinycLexer(input_stream)
@@ -78,4 +78,4 @@ filename = 'test/palindrome.c'
 temp = 'temp.c'
 output = 'output.ll'
 preCompile(filename, temp)
-# main(temp, output)
+main(temp, output)

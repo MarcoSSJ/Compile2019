@@ -1,3 +1,6 @@
+"""
+预编译阶段,进行IDENTIFIER的值替换
+"""
 from antlr4 import *
 from precompile.preCompileLexer import preCompileLexer
 from precompile.preCompileListener import preCompileListener
@@ -20,6 +23,7 @@ class preCompiler(preCompileVisitor):
         pass
 
     def StringCtx(self, ctx):
+        """通用的返回string方法,当子节点为lexer节点时,加上getTExt(),否则加上返回值,空格为了防止c程序inti这种情况错误"""
         s = ''
         for child in ctx.children:
             text = self.visit(child)
@@ -32,7 +36,7 @@ class preCompiler(preCompileVisitor):
     # Visit a parse tree produced by tinycParser#program.
     def visitProgram(self, ctx:tinycParser.ProgramContext):
         s = ''
-        if ctx.EOF():
+        if ctx.EOF():#EOF会生成<EOF>从而报错
             children = ctx.children[:-1]
         else:
             children = ctx.children
@@ -162,14 +166,18 @@ class preCompiler(preCompileVisitor):
 
     # Visit a parse tree produced by tinycParser#postfixExpression.
     def visitPostfixExpression(self, ctx:tinycParser.PostfixExpressionContext):
+        """postfix会识别关键字,所以需要特殊处理"""
         if len(ctx.children) == 1:
             text = ctx.primaryExpression().getText()
             mlist = self.table.table.get(text)
             if mlist and not len(mlist.params):
                 s = ''.join(mlist.tokens)
                 return s
+            else:
+                return self.StringCtx(ctx)
 
         elif ctx.children[1].getText() == '(':
+            """此时假设遇到了macro函数,进行处理"""
             text = ctx.postfixExpression().getText()
             print("the macro func can be ", text)
             mlist = self.table.table.get(text)
