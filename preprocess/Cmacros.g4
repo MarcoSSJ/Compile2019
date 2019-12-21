@@ -6,10 +6,13 @@ program : translation_unit Eof?;
 
 translation_unit
 @init {print("Cmacros last update 1436");}
-    :   ( '#' preprocessor
+    :   body +
+    ;
+
+body
+    :'#' preprocessor
     |     ignore
     |     NL
-    )+
     ;
 
 preprocessor

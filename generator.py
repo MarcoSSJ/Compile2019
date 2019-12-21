@@ -13,38 +13,41 @@ from preprocess.CmacrosVisitor import CmacrosVisitor
 from preprocess.CmacrosLexer import CmacrosLexer
 from preprocess.CmacrosParser import CmacrosParser
 from macro import MacroVisitor
+from MacroTable import  MacroTable
+
+def cleaninclude(filename, output):
+    f = open(filename)
+    of = open(output, 'w')
+    for line in f.readlines():
+        line = line.lstrip()
+        if not line.startswith('#'):
+            of.write(line)
+
 
 def preCompile(filename, output):
+    """generate the table """
+    table = MacroTable()
     input_stream = FileStream(filename)
     lexer = CmacrosLexer(input_stream)
     token_stream = CommonTokenStream(lexer)
     parser = CmacrosParser(token_stream)
+    tree = parser.program()
+    my_visitor = MacroVisitor(table)
+    my_visitor.visit(tree)
+
+
+    cleaninclude(filename, 'temp')
+    """clean the #part include and match to change macro"""
+    input_stream = FileStream('temp')
+    lexer = tinycLexer(input_stream)
+    token_stream = CommonTokenStream(lexer)
+    parser = tinycParser(token_stream)
     # Entry point in the json g4 grammar: json
     tree = parser.program()
-    my_visitor =MacroVisitor()
+    my_visitor = preCompiler(output, table)
     # walker = ParseTreeWalker()
     # walker.walk(my_listener, tree)
     my_visitor.visit(tree)
-    # print('my_visitor.define', my_visitor.define)
-    # output_str = str(input_stream)
-    # for cname, define in my_visitor.define:
-    #     # replace the define
-    #     str_re = re.compile(cname)
-    #     output_str = str_re.sub(define, output_str)
-    # output_str = re.compile('#define.*\n').sub('', output_str)
-    # with open(output, "w") as f:
-    #     f.write(output_str)
-
-    # input_stream = FileStream(filename)
-    # lexer = tinycLexer(input_stream)
-    # token_stream = CommonTokenStream(lexer)
-    # parser = tinycParser(token_stream)
-    # # Entry point in the json g4 grammar: json
-    # tree = parser.program()
-    # my_visitor = preCompiler()
-    # # walker = ParseTreeWalker()
-    # # walker.walk(my_listener, tree)
-    # my_visitor.visit(tree)
     # print('my_visitor.define', my_visitor.define)
     # output_str = str(input_stream)
     # for cname, define in my_visitor.define:

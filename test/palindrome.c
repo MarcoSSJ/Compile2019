@@ -5,6 +5,7 @@
 #define FALSE 0
 #define IDTEST(a,b,c) a,b,c
 
+
 int strLen(char s[]){
     int i;
     for(i = 0; s[i]; i++);
