@@ -46,7 +46,8 @@ def main(filename, output):
     with open(output, "w") as f:
         f.write(repr(my_visitor.module))
 
-filename = 'test\hello world.c'
+
+filename = 'test\palindrome.c'
 temp = 'temp.c'
 output = 'output.ll'
 preCompile(filename, temp)
