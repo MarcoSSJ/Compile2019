@@ -16,3 +16,4 @@ parser_/tinycListener.py
 parser_/tinycVisitor.py
 precompile/.antlr/
 output.ll
+tinyc.g4
