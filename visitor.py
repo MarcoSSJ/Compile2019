@@ -419,9 +419,14 @@ class c2llvmVisitor(tinycVisitor):
                 print('args', args)
                 return self.builder.call(left_exp, args), None
             elif op == '[':
+
                 val = self.visit(ctx.expression())
+                if type(left_exp.type) in [ir.ArrayType]:
+                    var = self.builder.extract_value(left_exp, val.constant)
+                    return var, None
                 print("postif []the val is ",val, "left " , addr)
                 addr = self.builder.gep(addr, [val])
+                print("addr is ",addr)
 
                 var = self.builder.load(addr)
                 return var, None

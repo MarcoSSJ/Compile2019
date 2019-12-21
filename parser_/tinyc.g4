@@ -83,7 +83,7 @@ declarator //初始化单元具体内容
 directDeclarator
     :  IDENTIFIER
     |  directDeclarator '(' parameterTypeList? ')'
-    |  directDeclarator '[' constantExpression? ']'
+    |  directDeclarator '[' constantExpression ']'
     ;
 
 constantExpression
