@@ -56,8 +56,16 @@ initializer //TODO:支持数组初始化
     ;
 
 declarator //初始化单元具体内容
-    :   IDENTIFIER
-    |   IDENTIFIER '(' parameterTypeList? ')'
+    :   directDeclarator
+     ;
+directDeclarator
+    :  IDENTIFIER
+    |  directDeclarator '(' parameterTypeList? ')'
+    |  directDeclarator '[' constantExpression? ']'
+    ;
+
+constantExpression
+    : conditionalExpression
     ;
 
 parameterTypeList //函数参数列表
@@ -103,6 +111,7 @@ postfixExpression //() [] 为后缀的表达式,TODO:暂时只支持函数,只�
    | postfixExpression '++'
    | postfixExpression '--'
    | postfixExpression '(' argumentExpressionList? ')'
+   | postfixExpression '[' expression ']'
    ;
 
 argumentExpressionList

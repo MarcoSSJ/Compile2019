@@ -213,22 +213,36 @@ class c2llvmVisitor(tinycVisitor):
     # Visit a parse tree produced by tinycParser#declarator.
     def visitDeclarator(self, ctx:tinycParser.DeclaratorContext):
         """返回_, func_name, func_type, arg_names"""
+        return self.visit(ctx.directDeclarator())
+
+
+    def visitDirectDeclarator(self, ctx:tinycParser.DirectDeclaratorContext):
         if len(ctx.children) == 1:
             # :   IDENTIFIER
             # TODO: 检查这里返回值
             return self.BASE ,ctx.IDENTIFIER().getText(), self.cur_type, []
         else:
-            func_name = ctx.IDENTIFIER().getText()
-            if len(ctx.children) == 4:
-                (arg_names, arg_types), var_arg = self.visit(ctx.parameterTypeList())
-                new_llvm_type = ir.FunctionType(self.cur_type, arg_types, var_arg=var_arg)
-                # 代表有参数列表
-                return self.FUNC, func_name,new_llvm_type, arg_names
-            else:
-                arg_names = []
-                arg_types = []
-                new_llvm_type = ir.FunctionType(self.cur_type, arg_types)
-                return self.FUNC, func_name, new_llvm_type, arg_names
+            op = ctx.children[1].getText()
+            if op == '(':
+                func_name = ctx.children[0].getText()
+                if len(ctx.children) == 4:
+                    (arg_names, arg_types), var_arg = self.visit(ctx.parameterTypeList())
+                    new_llvm_type = ir.FunctionType(self.cur_type, arg_types, var_arg=var_arg)
+                    # 代表有参数列表
+                    return self.FUNC, func_name,new_llvm_type, arg_names
+                else:
+                    arg_names = []
+                    arg_types = []
+                    new_llvm_type = ir.FunctionType(self.cur_type, arg_types)
+                    return self.FUNC, func_name, new_llvm_type, arg_names
+            elif op == '[':
+                pass
+
+
+    # Visit a parse tree produced by tinycParser#constantExpression.
+    def visitConstantExpression(self, ctx:tinycParser.ConstantExpressionContext):
+        var, addr = self.visit(ctx.conditionalExpression())
+        return var
 
     # Visit a parse tree produced by tinycParser#parameterTypeList.
     def visitParameterTypeList(self, ctx:tinycParser.ParameterTypeListContext):
@@ -328,6 +342,10 @@ class c2llvmVisitor(tinycVisitor):
                 print('left', left_exp)
                 print('args', args)
                 return self.builder.call(left_exp, args), None
+            elif op == '[':
+                val = self.visit(ctx.expression())
+                var = self.builder.extract_value(left_exp, val)
+                return var, None
             elif op == '++':
                 one = left_exp.type(1)
                 print('one', one)
