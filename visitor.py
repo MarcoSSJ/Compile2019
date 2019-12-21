@@ -49,7 +49,6 @@ class c2llvmVisitor(tinycVisitor):
         print('visit trans unit')
         return self.visitChildren(ctx)
 
-
     # Visit a parse tree produced by tinycParser#function.
     def visitFunction(self, ctx:tinycParser.FunctionContext):
         self.symbol_table.enterScope()
@@ -76,7 +75,6 @@ class c2llvmVisitor(tinycVisitor):
         self.symbol_table.exitScope()
         return
 
-
     # Visit a parse tree produced by tinycParser#typeSpecifier.
     def visitTypeSpecifier(self, ctx:tinycParser.TypeSpecifierContext):
         text = ctx.getText()
@@ -98,14 +96,12 @@ class c2llvmVisitor(tinycVisitor):
     def visitCompoundUnit(self, ctx:tinycParser.CompoundUnitContext):
         return self.visitChildren(ctx)
 
-
     # Visit a parse tree produced by tinycParser#declaration.
     def visitDeclaration(self, ctx:tinycParser.DeclarationContext):
         var_type = self.visit(ctx.typeSpecifier())
         self.cur_type = var_type
 
         init_list = self.visit(ctx.initDeclaration())
-
 
     # Visit a parse tree produced by tinycParser#initDeclaration.
     def visitInitDeclaration(self, ctx:tinycParser.InitDeclarationContext):
@@ -143,20 +139,38 @@ class c2llvmVisitor(tinycVisitor):
             #TODO: error
         elif tpe == self.ARRAY:
             addr = self.builder.alloca(llvm_tpe)
+            print('addr', addr, 'llvm_tpe', llvm_tpe)
             try:
                 self.symbol_table.addSymbol(name, addr)
+                var_name, var_type = name, llvm_tpe
+                print('var_name type', var_name, var_type)
                 if has_init:
                     init_val = self.visit(ctx.initializer())
-                    print('initiaze to ', init_val)
+                    if isinstance(init_val, list):
+                        converted_val = ir.Constant(var_type, var_name)
+                    print('Array initiaze to ', init_val, type(init_val))
+                    self.builder.store(converted_val, addr)
                     # print('help me teacher!!',init_val, addr)
-                    self.builder.store(init_val, addr)
+                    # self.builder.store(init_val, addr)
             except Exception as e:
                 raise e
 
     def visitInitializer(self, ctx:tinycParser.InitializerContext):
         if len(ctx.children) == 1:
             return self.visit(ctx.assignmentExpression())
+        else:
+            return self.visit(ctx.initializerList())
 
+    def visitInitializerList(self, ctx:tinycParser.InitializerListContext):
+        print('visitInitializerList')
+        init_list = []
+        for i in ctx.children:
+            print(i.getText())
+        if len(ctx.children) != 1:
+            init_list = self.visit(ctx.initializerList())
+        init_list.append(self.visit(ctx.initializer()))
+        print('init_list', init_list)
+        return init_list
 
     def visitIterationStatement(self, ctx:tinycParser.IterationStatementContext):
         self.symbol_table.enterScope()
@@ -233,6 +247,7 @@ class c2llvmVisitor(tinycVisitor):
 
 
     def visitDirectDeclarator(self, ctx:tinycParser.DirectDeclaratorContext):
+        print('visitDirectDeclarator', ctx.getText())
         if len(ctx.children) == 1:
             # :   IDENTIFIER
             # TODO: 检查这里返回值
@@ -255,11 +270,13 @@ class c2llvmVisitor(tinycVisitor):
                     return self.FUNC, func_name, new_llvm_type, arg_names
             elif op == '[':
                 arrayname = ctx.children[0].getText()
+                print('arrayname', arrayname, ctx.children, len(ctx.children))
                 if len(ctx.children) == 4:
                     try:
-                        num = int(ctx.constantExpression().getText())
+                        arraynum = int(ctx.constantExpression().getText())
                         llvm_type = ir.PointerType(old_type)
-                        return self.ARRAY, arrayname, llvm_type ,num
+                        print('return ARRAY', self.ARRAY, arrayname, llvm_type, arraynum)
+                        return self.ARRAY, arrayname, llvm_type, arraynum
                     except:
                         raise Exception('only constant value are supported')
                 else:
@@ -339,9 +356,11 @@ class c2llvmVisitor(tinycVisitor):
             val = self.visit(ctx.assignmentExpression())
             if op == "=":
                 self.builder.store(val, addr)
+                print('val, addr', val, '\n', addr)
                 return val
             elif op == "+=":
                 add = self.builder.add(var, val)
+                print('add, addr, var', add,'\n', addr,'\n', var)
                 self.builder.store(add, addr)
                 return var #TODO:check here
             elif op == "-=":
