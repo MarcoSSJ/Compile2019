@@ -3,14 +3,7 @@ c.g4
 parser_/.antlr/
 parser_/__pycache__/
 parser/
-parser/tinyc.g4
-parser/tinyc.tokens
-parser/tinyc.interp
-parser/tinycLexer.interp
-parser/tinycLexer.py
-parser/tinycLexer.tokens
-parser/tinycListener.py
-parser/tinycParser.py
+parser_/gen.bat
 __pycache__
 test.py
 parser_/tinyc.interp
@@ -21,4 +14,5 @@ parser_/tinycLexer.tokens
 parser_/tinycParser.py
 parser_/tinycListener.py
 parser_/tinycVisitor.py
+precompile/.antlr/
 output.ll
