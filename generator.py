@@ -49,7 +49,7 @@ def main(filename, output):
 
 
 #filename = 'test/palindrome.c'
-temp = 'temp.c'
+temp = 'test/hello world.c'
 output = 'output.ll'
 #preCompile(filename, temp)
 main(temp, output)
