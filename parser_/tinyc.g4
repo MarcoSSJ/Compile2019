@@ -234,6 +234,7 @@ primaryExpression
     : IDENTIFIER
     | mString
     | CONSTANT
+    | '(' expression ')'
     ;
 
 /*------------------------lexer------------------------------*/

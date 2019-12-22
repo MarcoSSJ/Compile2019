@@ -2,11 +2,11 @@ grammar Cmacros;/* Process #define statements in a C file.
    TODO : develop token_sequence
 */
 
-program : translation_unit Eof?;
+program : translation_unit ;
 
 translation_unit
 @init {print("Cmacros last update 1436");}
-    :   body +
+    :   body + EOF?
     ;
 
 body
@@ -37,8 +37,6 @@ ignore
     :   (ID|~NL)+ NL
     ;
 
-
-Eof: EOF;
 
 CHAR
     :   '\'' ( '\\'? . )+? '\'' ;
@@ -74,6 +72,7 @@ SPECIAL
 STRING
     :   '"' ( '\\'? . )*? '"' ;
 
+
 WS  :   [ \t]+ -> channel(HIDDEN) ;
 
 fragment DIGIT  : [0-9] ;
@@ -81,3 +80,4 @@ fragment DIGIT  : [0-9] ;
 fragment ID_FIRST : LETTER | '_' ;
 
 fragment LETTER : [a-zA-Z] ;
+

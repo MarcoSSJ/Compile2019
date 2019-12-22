@@ -618,7 +618,7 @@ class c2llvmVisitor(tinycVisitor):
         if len(ctx.children) == 1:
             return self.visit(ctx.inclusiveOrExpression())
         else:
-            lhs, laddr = ir.IntType(1)(self.visit(ctx.children[0]))
+            lhs = (self.visit(ctx.children[0])[0])
             result = self.builder.alloca(ir.IntType(1))
             converted = whether_is_true(self.builder, lhs)
             cond = LLVMTypes.bool(converted.get_reference())
@@ -698,6 +698,11 @@ class c2llvmVisitor(tinycVisitor):
             print('const', text)
             const = get_const_from_str('int', text)
             return const, None
+        elif ctx.expression():
+            val = self.visit(ctx.expression())
+            return val , None
+        else:
+            raise Exception('not supported')
 
     def visitMString(self, ctx:tinycParser.MStringContext):
         """ 将string或者char里面的\n修改了"""

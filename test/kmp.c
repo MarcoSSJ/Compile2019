@@ -87,7 +87,7 @@ int unittest(){
     char s[] = "123412341234";
     int len = strLen(s);
     int next[50];
-    calNext(s, next)
+    calNext(s, next);
     printf("*******kmp test*********\n");
     testKmp("aaababababababaaaaaa", "abababababaaa", 4);
     testKmp("a", "aa", -1);
