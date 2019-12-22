@@ -79,7 +79,7 @@ print("===========================")
 print("===========================")
 print("===========================")
 
-filename = 'test/kmp.c'
+filename = 'test.c'
 output = 'output2.ll'
 # preCompile(filename, temp)
 main(filename , output)

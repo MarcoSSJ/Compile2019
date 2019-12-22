@@ -16,7 +16,7 @@ int main(){
 //        printf("%d\n", i);
 //        i = i + 1;
 //    }
-    char c[5] = "abcd\0";
+    char c[6] = "abcd\0";
     printf("%s", c);
     int d = 1;
     printf("%c", c[d]);

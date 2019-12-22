@@ -29,6 +29,7 @@ class c2llvmVisitor(tinycVisitor):
         self.symbol_table.addSymbol('printf' , printf_func)
         self.cur_type = None
         self.constants = 0
+        self.continue_block, self.break_block = None, None
         pass
     # Visit a parse tree produced by tinycParser#program.
     def visitProgram(self, ctx:tinycParser.ProgramContext):
@@ -148,6 +149,8 @@ class c2llvmVisitor(tinycVisitor):
                     init_val = self.visit(ctx.initializer())
                     if isinstance(init_val, list):
                         converted_val = ir.Constant(var_type, init_val)
+                    else:
+                        converted_val = init_val
                     print('Array initiaze to ', init_val, type(init_val))
                     self.builder.store(converted_val, addr)
                     print('self.builder.module', self.builder.block.instructions)
@@ -191,6 +194,8 @@ class c2llvmVisitor(tinycVisitor):
             update_block = self.builder.append_basic_block(name=prefix+".loop_update")
             end_block = self.builder.append_basic_block(name=prefix+".loop_end")
 
+            last_continue, last_break = self.continue_block, self.break_block
+            self.continue_block, self.break_block = update_block, end_block
             self.builder.branch(cond_block)
             self.builder.position_at_start(cond_block)
 
@@ -220,6 +225,9 @@ class c2llvmVisitor(tinycVisitor):
             self.visit(ctx.children[child_idx])
             self.builder.branch(update_block)
             self.builder.position_at_start(end_block)
+            self.symbol_table.exitScope()
+            self.continue_block = last_continue
+            self.break_block = last_break
             #TODO: continue break[-=/        return self.visitChildren(ctx)
 
     # Visit a parse tree produced by tinycParser#returnStatement.
@@ -232,6 +240,12 @@ class c2llvmVisitor(tinycVisitor):
                 ret_val = self.visit(ctx.expression())
                 # TODO: cast type
                 self.builder.ret(ret_val)
+        elif jump_instru == 'continue':
+             if self.continue_block is None:
+                raise Exception("continue can not be used here", ctx)
+             self.builder.branch(self.continue_block)
+        else:
+            raise Exception('not implemented')
 
     # Visit a parse tree produced by tinycParser#expressionStatement.
     def visitExpressionStatement(self, ctx:tinycParser.ExpressionStatementContext):
@@ -488,6 +502,7 @@ class c2llvmVisitor(tinycVisitor):
                 return val, None
             elif text == '-':
                 neg = self.builder.neg(val)
+                print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!neg is ', neg)
                 return neg, None
 
     # Visit a parse tree produced by tinycParser#multiplicativeExpression.
