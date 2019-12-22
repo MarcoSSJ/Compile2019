@@ -66,7 +66,7 @@ class c2llvmVisitor(tinycVisitor):
             llvm_func = ir.Function(self.module, func_type, name=func_name)
             print("func is", func_name, func_type)
             self.symbol_table.addSymbol(func_name, llvm_func)
-            self.builder = ir.IRBuilder(llvm_func.append_basic_block(name=".entry"))
+            self.builder = ir.IRBuilder(llvm_func.append_basic_block(name=".entry"+func_name))
         self.symbol_table.enterScope()
         for arg, llvm_arg in zip(arg_names, llvm_func.args):
             print('func add argname', arg, llvm_arg)
@@ -148,10 +148,12 @@ class c2llvmVisitor(tinycVisitor):
                 print('var_name type', var_name, var_type)
                 if has_init:
                     init_val = self.visit(ctx.initializer())
-                    if isinstance(init_val, list):
-                        converted_val = ir.Constant(var_type, init_val)
+                    # if isinstance(init_val, list):
+                    #     converted_val = ir.Constant(var_type, init_val)
+                    # else:
+
                     print('Array initiaze to ', init_val, type(init_val))
-                    self.builder.store(converted_val, addr)
+                    self.builder.store(init_val, addr)
                     print('self.builder.module', self.builder.block.instructions)
             except Exception as e:
                 raise e
@@ -212,7 +214,7 @@ class c2llvmVisitor(tinycVisitor):
             else:
                 child_idx += 1
                 self.builder.branch(loop_block)
-
+            self.builder.position_at_end(cond_block)
             self.builder.position_at_start(update_block)
             if getRuleName(ctx.children[child_idx]) == 'expression':
                 self.visit(ctx.children[child_idx])
@@ -220,10 +222,13 @@ class c2llvmVisitor(tinycVisitor):
             else:
                 child_idx += 1
             self.builder.branch(cond_block)
+            self.builder.position_at_end(update_block)
             self.builder.position_at_start(loop_block)
             self.visit(ctx.children[child_idx])
             self.builder.branch(update_block)
             self.symbol_table.exitScope()
+            self.builder.position_at_end(loop_block)
+
             self.builder.position_at_start(end_block)
             self.builder.alloca(LLVMTypes.bool)
             self.continue_block = last_continue
@@ -441,6 +446,8 @@ class c2llvmVisitor(tinycVisitor):
                     else:
                         converted_args.append(arg)
                 print('left', left_exp)
+                if len(converted_args) < len(args):  # 考虑变长参数
+                    converted_args += args[len(left_exp.args):]
                 return self.builder.call(left_exp, converted_args), None
             elif op == '[':
 
