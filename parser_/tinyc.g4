@@ -129,6 +129,8 @@ selectionStatement
 iterationStatement
     : 'for' '(' expression? ';' expression? ';' expression? ')' statement
     | 'for' '(' declaration expression? ';' expression? ')' statement
+    | 'do' statement 'while' '(' expression ')' ';'
+    | 'for' '(' expression ')' statement
     ;
 
 expression //语句表达式
