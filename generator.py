@@ -11,7 +11,7 @@ from preprocess.CmacrosParser import CmacrosParser
 from macro import MacroVisitor
 from MacroTable import  MacroTable
 from preCompiler import preCompiler
-
+import os,sys
 def cleaninclude(filename, output):
     """用来将#开头的行消除"""
     f = open(filename)
@@ -22,7 +22,7 @@ def cleaninclude(filename, output):
             of.write(line)
 
 
-def preCompile(filename, output):
+def preCompile(filename, output, temp):
     """generate the macro table """
     table = MacroTable()
     input_stream = FileStream(filename)
@@ -32,10 +32,15 @@ def preCompile(filename, output):
     tree = parser.program()
     my_visitor = MacroVisitor(table)
     my_visitor.visit(tree)
-    cleaninclude(filename, 'temp')
+    cleaninclude(filename,temp)
 
+    print("===============================")
+    print("===============================")
+    print("===============================")
+    print("===============================")
+    print("===============================")
     """clean the #part include and match to change macro"""
-    input_stream = FileStream('temp')
+    input_stream = FileStream(temp)
     lexer = tinycLexer(input_stream)
     token_stream = CommonTokenStream(lexer)
     parser = tinycParser(token_stream)
@@ -70,20 +75,26 @@ def main(filename, output):
     with open(output, "w") as f:
         f.write(repr(my_visitor.module))
 #
+if __name__ == '__main__':
+    input = 'test/kmp.c'
+    temp = '@@@temp.c'
+    temptemp = '@@@@temp.c'
+    output = "output.ll"
+    try:
+        if sys.argv[1]:
+            input = sys.argv[1]
+        if sys.argv[2]:
+            output = sys.argv[2]
+        if sys.argv[3]:
+            mode = sys.argv[3]
+    except:
+        pass
 
-test = "test.c"
-output = "output0.ll"
-# main(test, output)
+    if os.path.exists(temp):
+        os.remove(temp)
+    if os.path.exists(temptemp):
+        os.remove(temptemp)
 
-palindrome = 'test/palindrome.c'
-array = 'test/array.c'
-kmp = 'test/kmp.c'
-output1 = "output1.ll"
-# main(palindrome, output1)
-filename = 'test/palindrome.c'
-# temp = 'temp.c'
-output2 = 'output2.ll'
-# preCompile(filename, temp)
-# main(array, output2)
-output3 = 'output3.ll'
-main(kmp, output3)
+    # preCompile(input, temp, temptemp)
+
+    main(input, output)
