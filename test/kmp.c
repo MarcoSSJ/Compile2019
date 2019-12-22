@@ -1,6 +1,9 @@
+<<<<<<< Updated upstream
 // chuchong 
 // usage: using kmp to check whether a string is a substring of another
 // only support string less than 50 letters
+=======
+>>>>>>> Stashed changes
 int strLen(char s[]){
     int i;
     for(i = 0; s[i]; i++);
@@ -17,8 +20,8 @@ void assertTest(int in, int gt){
 }
 
 void calNext(char s[], int next[]){
-    int i = 0;//i to s
-    int j = -1;//j to next
+    int i = 0;
+    int j = -1;
     int len;
     len = strLen(s);
 
@@ -39,7 +42,6 @@ void calNext(char s[], int next[]){
 }
 
 int firstIndexOf(char s[], char substr[]){
-    // NOTSUBSTR -1: failed
     int i = 0;
     int j = 0;
     int subLen = strLen(substr);
@@ -53,6 +55,10 @@ int firstIndexOf(char s[], char substr[]){
     calNext(substr, next);
 
     for(int k = 0; k < subLen; k ++){
+<<<<<<< Updated upstream
+=======
+        int val = next[k];
+>>>>>>> Stashed changes
         printf("next [] %d  = %d\n", k , next[k]);
     }
 
@@ -80,6 +86,10 @@ void testKmp(char s[], char substr[], int gt){
     printf("--new kmp test start:\n");
     int output = firstIndexOf(s, substr);
     assertTest(output, gt);
+<<<<<<< Updated upstream
+=======
+    printf("%d expected %d got %d", gt, output);
+>>>>>>> Stashed changes
     return;
 }
 
@@ -87,7 +97,11 @@ void unittest(){
     printf("*******kmp test*********\n");
     testKmp("aaabaaa", "baaa", 3);
     testKmp("a", "aa", -1);
+<<<<<<< Updated upstream
     testKmp("b", "a", -1);
+=======
+    testKmp("b", "a",  -1);
+>>>>>>> Stashed changes
     testKmp("aaaa", "b", -1);
     testKmp("aaaa", "aa", 0);
     return;

@@ -240,18 +240,15 @@ class c2llvmVisitor(tinycVisitor):
     # Visit a parse tree produced by tinycParser#declarator.
     def visitDeclarator(self, ctx:tinycParser.DeclaratorContext):
         """返回_, func_name, func_type, arg_names"""
+        print('visitDeclarator:', ctx.children, ctx.getText())
         tpe, name, llvm_type, arg = self.visit(ctx.directDeclarator())
+        print('after decl: tpe name ', tpe, name, llvm_type, arg)
         if tpe == self.ARRAY:
-            # for size in reversed(arg):
-            print('before llvm_type:', llvm_type, arg)
-            cnt = 0
-            if arg:
-                cnt = int(arg)
-                llvm_type = ir.ArrayType(element=llvm_type, count=cnt)
+            for size in reversed(arg):
+                print('before llvm_type:', llvm_type, arg)
+                llvm_type = ir.ArrayType(element=llvm_type, count=size)
                 print('llvm_type:', llvm_type, arg)
-                return tpe, name, llvm_type, []
-            else:
-                return tpe, name, llvm_type, arg
+            return tpe, name, llvm_type, []
         else:
             return tpe, name, llvm_type, arg
 
@@ -262,6 +259,7 @@ class c2llvmVisitor(tinycVisitor):
         if len(ctx.children) == 1:
             # :   IDENTIFIER
             # TODO: 检查这里返回值
+            # print('Base:', self.cur_type)
             return self.BASE ,ctx.IDENTIFIER().getText(), self.cur_type, []
         else:
             op = ctx.children[1].getText()
@@ -280,14 +278,15 @@ class c2llvmVisitor(tinycVisitor):
                     new_llvm_type = ir.FunctionType(old_type, arg_types)
                     return self.FUNC, func_name, new_llvm_type, arg_names
             elif op == '[':
-                arrayname = ctx.children[0].getText()
-                print('arrayname', arrayname, ctx.children, len(ctx.children))
-                if len(ctx.children) == 4:
+                tpe, arrayname, old_type, array_nums = self.visit(ctx.directDeclarator())
+                print('arrayname', arrayname, ctx.children, len(ctx.children), tpe, old_type, array_nums)
+                if len(ctx.children) >= 4:
                     try:
-                        arraynum = int(ctx.constantExpression().getText())
+                        array_size= int(ctx.constantExpression().getText())
+                        array_nums.append(array_size)
                         # llvm_type = ir.PointerType(old_type)
-                        # print('return ARRAY', self.ARRAY, arrayname, llvm_type, arraynum)
-                        return self.ARRAY, arrayname, old_type, arraynum
+                        print('return ARRAY', self.ARRAY, arrayname, old_type, array_nums)
+                        return self.ARRAY, arrayname, old_type, array_nums
                     except:
                         raise Exception('only constant value are supported')
                 else:

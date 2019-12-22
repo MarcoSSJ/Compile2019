@@ -69,17 +69,14 @@ def main(filename, output):
     my_visitor.visit(tree)
     with open(output, "w") as f:
         f.write(repr(my_visitor.module))
+#
 
-filename1 = 'test/palindrome.c'
-output = 'output1.ll'
+palindrome = 'test/palindrome.c'
+array = 'test/array2.c'
+kmp = 'test/kmp.c'
+
+filename = 'test/palindrome.c'
+# temp = 'temp.c'
+output = 'output.ll'
 # preCompile(filename, temp)
-main(filename1 , output)
-
-print("===========================")
-print("===========================")
-print("===========================")
-
-filename = 'test/kmp.c'
-output = 'output2.ll'
-# preCompile(filename, temp)
-main(filename , output)
+main(array, output)
