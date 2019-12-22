@@ -241,6 +241,87 @@ class c2llvmVisitor(tinycVisitor):
             self.symbol_table.exitScope()
             self.continue_block = last_continue
             self.break_block = last_break
+        elif keyword == 'while':
+            child_idx = 2
+
+            cond_block = self.builder.append_basic_block(name=prefix + ".loop_cond")
+            loop_block = self.builder.append_basic_block(name=prefix + ".loop_body")
+            update_block = self.builder.append_basic_block(name=prefix + ".loop_update")
+            end_block = self.builder.append_basic_block(name=prefix + ".loop_end")
+
+            before_break_block = self.break_block
+            self.break_block = end_block
+            before_continue_block = self.continue_block
+            self.continue_block = update_block
+
+            self.builder.branch(cond_block)
+            self.builder.position_at_start(cond_block)
+
+            if getRuleName(ctx.children[child_idx]) == 'expression':
+                cond_val = self.visit(ctx.children[child_idx])
+                print('cond_val', cond_val.flags)
+                buf = cond_val.get_reference()
+
+                buf = LLVMTypes.bool(buf)
+                print('converted_cond', buf)
+
+                self.builder.cbranch(buf, loop_block, end_block)
+                child_idx += 2
+
+            self.builder.position_at_start(loop_block)
+            self.visit(ctx.children[child_idx])
+            self.builder.branch(update_block)
+
+            self.builder.position_at_start(update_block)
+            self.builder.branch(cond_block)
+
+            self.builder.position_at_start(end_block)
+            self.continue_block = before_continue_block
+            self.break_block = before_break_block
+
+            self.symbol_table.exitScope()
+        elif keyword == 'do':
+            child_idx = 2
+            do_block = self.builder.append_basic_block(name=name_prefix + "loop_do")
+            cond_block = self.builder.append_basic_block(name=prefix + ".loop_cond")
+            loop_block = self.builder.append_basic_block(name=prefix + ".loop_body")
+            update_block = self.builder.append_basic_block(name=prefix + ".loop_update")
+            end_block = self.builder.append_basic_block(name=prefix + ".loop_end")
+
+            before_break_block = self.break_block
+            self.break_block = end_block
+            before_continue_block = self.continue_block
+            self.continue_block = update_block
+
+            self.builder.branch(do_block)
+            self.builder.position_at_start(do_block)
+            self.visit(ctx.children[1])
+
+            self.builder.branch(cond_block)
+            self.builder.position_at_start(cond_block)
+
+            if getRuleName(ctx.children[4]) == 'expression':
+                cond_val = self.visit(ctx.children[4])
+                print('cond_val', cond_val.flags)
+                buf = cond_val.get_reference()
+
+                buf = LLVMTypes.bool(buf)
+                print('converted_cond', buf)
+
+                self.builder.cbranch(buf, loop_block, end_block)
+
+            self.builder.position_at_start(loop_block)
+            self.visit(ctx.children[1])
+            self.builder.branch(update_block)
+
+            self.builder.position_at_start(update_block)
+            self.builder.branch(cond_block)
+
+            self.builder.position_at_start(end_block)
+            self.continue_block = before_continue_block
+            self.break_block = before_break_block
+
+            self.symbol_table.exitScope()
             #TODO: continue break[-=/        return self.visitChildren(ctx)
 
     # Visit a parse tree produced by tinycParser#returnStatement.
