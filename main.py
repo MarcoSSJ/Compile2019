@@ -1,3 +1,4 @@
+#编译大作业,from c 2 llvm,包含预编译
 from parser_.tinycLexer import tinycLexer
 from parser_.tinycListener import tinycListener
 from parser_.tinycParser import tinycParser
@@ -50,6 +51,11 @@ def preCompile(filename, output, temp):
     # walker = ParseTreeWalker()
     # walker.walk(my_listener, tree)
     my_visitor.visit(tree)
+    print("=============================================")
+    print("=============preprocess end==================")
+    print("=============================================")
+    print("=============================================")
+    print("=============================================")
     # print('my_visitor.define', my_visitor.define)
     # output_str = str(input_stream)
     # for cname, define in my_visitor.define:
@@ -74,27 +80,29 @@ def main(filename, output):
     my_visitor.visit(tree)
     with open(output, "w") as f:
         f.write(repr(my_visitor.module))
-#
+
 if __name__ == '__main__':
-    input = 'test/kmp.c'
+    input = 'test/macro.c'
     temp = '@@@temp.c'
     temptemp = '@@@@temp.c'
     output = "output.ll"
-    try:
-        if sys.argv[1]:
-            input = sys.argv[1]
-        if sys.argv[2]:
-            output = sys.argv[2]
-        if sys.argv[3]:
-            mode = sys.argv[3]
-    except:
-        pass
+    if len(sys.argv) == 2:
+        infile = sys.argv[0]
+        osfile = sys.argv[1]
+    else:
+        print("请输入两个参数, 第一个参数为测试c文件, 第二个参数为输出.ll位置")
 
+    if not os.path.exists(input):
+        print("输入文件参数无效!!!")
+
+    try:
+        open(output, 'w')
+    except:
+        print("无法输出文件!!!")
     if os.path.exists(temp):
         os.remove(temp)
     if os.path.exists(temptemp):
         os.remove(temptemp)
 
-    # preCompile(input, temp, temptemp)
-
-    main(input, output)
+    preCompile(input, temp, temptemp)
+    main(temp, output)
