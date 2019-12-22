@@ -2,7 +2,7 @@ grammar Cmacros;/* Process #define statements in a C file.
    TODO : develop token_sequence
 */
 
-program : translation_unit Eof?;
+program : translation_unit;
 
 translation_unit
 @init {print("Cmacros last update 1436");}
@@ -37,8 +37,6 @@ ignore
     :   (ID|~NL)+ NL
     ;
 
-
-Eof: EOF;
 
 CHAR
     :   '\'' ( '\\'? . )+? '\'' ;

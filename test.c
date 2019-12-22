@@ -11,17 +11,18 @@
 //    return 0;
 //}
 
+int c(int a[]){
+    return 0;
+}
+
+
 int main(){
 //    for(int i = 1; i < 10; i++){
 //        printf("%d\n", i);
 //        i = i + 1;
 //    }
-    char c[5] = "abcd\0";
-    printf("%s", c);
-    int d = 1;
-    printf("%c", c[d]);
-
-//    testMulti();
+    int k[5] = {1,2,3,5,4};
+    c(k);
     return 0;
 }
 

@@ -72,7 +72,7 @@ def main(filename, output):
 
 
 
-filename = 'test/array.c'
+filename = 'test/kmp.c'
 temp = 'temp.c'
 output = 'output.ll'
 preCompile(filename, temp)

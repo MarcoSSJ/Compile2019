@@ -136,7 +136,7 @@ class preCompiler(tinycVisitor):
 
 
     # Visit a parse tree produced by tinycParser#returnStatement.
-    def visitReturnStatement(self, ctx:tinycParser.ReturnStatementContext):
+    def visitJumpStatement(self, ctx:tinycParser.JumpStatementContext):
         return self.StringCtx(ctx)
 
     # Visit a parse tree produced by tinycParser#expressionStatement.

@@ -18,6 +18,7 @@ void assertTest(int in, int gt){
     }else{
         printf("test failed!\n");
     }
+    return;
 }
 
 void calNext(char s[], int next[]){
@@ -27,7 +28,7 @@ void calNext(char s[], int next[]){
     len = strLen(s);
 
     next[0] = -1;
-    while(i < len - 1){
+    for(;i < len - 1;){
         if(j == -1 || s[i] == s[j]){
             i ++;
             j ++;
@@ -50,7 +51,7 @@ int firstIndexOf(char s[], char substr[]){
     int next[MAXSIZE];
     calNext(substr, next);
 
-    while(j < len){
+    for(;j < len;){
         if (substr[i] == s[j]){
             i ++;
             j ++;
@@ -62,7 +63,7 @@ int firstIndexOf(char s[], char substr[]){
             j ++;
         }
 
-        if (!substr[i]){
+        if (substr[i] == 0){
             return (j - subLen);
         }
     }
@@ -74,6 +75,7 @@ void testKmp(char s[], char substr[], int gt){
     printf("--new kmp test start:\n");
     int output = firstIndexOf(s, substr);
     assertTest(output, gt);
+    return;
 }
 
 void unittest(){
@@ -83,6 +85,7 @@ void unittest(){
     testKmp("b", "a", NOTSUBSTR);
     testKmp("aaaa", "b", NOTSUBSTR);
     testKmp("aaaa", "aa", 0);
+    return;
 }
 
 int main(){

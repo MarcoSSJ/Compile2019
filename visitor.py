@@ -29,6 +29,8 @@ class c2llvmVisitor(tinycVisitor):
         self.symbol_table.addSymbol('printf' , printf_func)
         self.cur_type = None
         self.constants = 0
+        self.continue_block, self.break_block = None, None
+
         pass
     # Visit a parse tree produced by tinycParser#program.
     def visitProgram(self, ctx:tinycParser.ProgramContext):
@@ -191,6 +193,8 @@ class c2llvmVisitor(tinycVisitor):
             update_block = self.builder.append_basic_block(name=prefix+".loop_update")
             end_block = self.builder.append_basic_block(name=prefix+".loop_end")
 
+            last_continue, last_break = self.continue_block, self.break_block
+            self.continue_block, self.break_block = update_block, end_block
             self.builder.branch(cond_block)
             self.builder.position_at_start(cond_block)
 
@@ -219,11 +223,15 @@ class c2llvmVisitor(tinycVisitor):
             self.builder.position_at_start(loop_block)
             self.visit(ctx.children[child_idx])
             self.builder.branch(update_block)
+            self.symbol_table.exitScope()
             self.builder.position_at_start(end_block)
+            self.builder.alloca(LLVMTypes.bool)
+            self.continue_block = last_continue
+            self.break_block = last_break
             #TODO: continue break[-=/        return self.visitChildren(ctx)
 
     # Visit a parse tree produced by tinycParser#returnStatement.
-    def visitReturnStatement(self, ctx:tinycParser.ReturnStatementContext):
+    def visitJumpStatement(self, ctx:tinycParser.JumpStatementContext):
         jump_instru = ctx.children[0].getText()
         if jump_instru == 'return':
             if len(ctx.children) == 2:
@@ -232,6 +240,10 @@ class c2llvmVisitor(tinycVisitor):
                 ret_val = self.visit(ctx.expression())
                 # TODO: cast type
                 self.builder.ret(ret_val)
+        elif jump_instru == 'continue':
+            if self.continue_block is None:
+                raise Exception("continue can not be used here", ctx)
+            self.builder.branch(self.continue_block)
 
     # Visit a parse tree produced by tinycParser#expressionStatement.
     def visitExpressionStatement(self, ctx:tinycParser.ExpressionStatementContext):
@@ -419,22 +431,32 @@ class c2llvmVisitor(tinycVisitor):
                 args = []
                 if len(ctx.children) == 4:
                     args = self.visit(ctx.argumentExpressionList())
+                converted_args = []
                 #TODO 类型转换
+                for arg, param in zip(args, left_exp.args):
+                    if (type(arg.type) is ir.ArrayType) and\
+                            (type(param.type) is ir.PointerType):
+                        arg = arr_to_llvm_pointer(self.builder, arg)
+                        converted_args.append(arg)
+                    else:
+                        converted_args.append(arg)
                 print('left', left_exp)
-                print('args', args)
-                return self.builder.call(left_exp, args), None
+                return self.builder.call(left_exp, converted_args), None
             elif op == '[':
 
                 val = self.visit(ctx.expression())
-                if type(left_exp.type) in [ir.ArrayType]:
-                    var = self.builder.extract_value(left_exp, val.constant)
-                    return var, None
+                if (type(left_exp.type) in [ir.ArrayType])\
+                    and(type(val.type) in [ir.Constant]) :
+                    var = self.builder.extract_value(left_exp, val)
+                    return var, var
                 print("postif []the val is ",val, "left " , addr)
-                addr = self.builder.gep(addr, [val])
+                tmp = self.builder.alloca(val.type)
+                self.builder.store(val, tmp)
+                addr = self.builder.gep(tmp, [val])
                 print("addr is ",addr)
 
                 var = self.builder.load(addr)
-                return var, None
+                return var, addr
             elif op == '++':
                 one = left_exp.type(1)
                 print('one', one)
@@ -573,10 +595,12 @@ class c2llvmVisitor(tinycVisitor):
         if len(ctx.children) == 1:
             return self.visit(ctx.inclusiveOrExpression())
         else:
-            lhs, laddr = ir.IntType(1)(self.visit(ctx.children[0]))
-            rhs, raddr = ir.IntType(1)(self.visit(ctx.children[2]))
+            lhs = self.visit(ctx.children[0])[0]
+            rhs = self.visit(ctx.children[2])[0]
             result = self.builder.alloca(ir.IntType(1))
-            with self.builder.if_else(lhs) as (then, otherwise):
+            converted = whether_is_true(self.builder, lhs)
+            cond = LLVMTypes.bool(converted.get_reference())
+            with self.builder.if_else(cond) as (then, otherwise):
                 with then:
                     self.builder.store(rhs, result)
                 with otherwise:
@@ -588,10 +612,12 @@ class c2llvmVisitor(tinycVisitor):
         if len(ctx.children) == 1:
             return self.visit(ctx.logicalAndExpression())
         else:
-            lhs, laddr = ir.IntType(1)(self.visit(ctx.children[0]))
-            rhs, raddr = ir.IntType(1)(self.visit(ctx.children[2]))
+            lhs = self.visit(ctx.children[0])[0]
+            rhs = self.visit(ctx.children[2])[0]
             result = self.builder.alloca(ir.IntType(1))
-            with self.builder.if_else(lhs) as (then, otherwise):
+            converted = whether_is_true(self.builder, lhs)
+            cond = LLVMTypes.bool(converted.get_reference())
+            with self.builder.if_else(cond) as (then, otherwise):
                 with then:
                     self.builder.store(ir.IntType(1)(0), result)
                 with otherwise:
@@ -609,6 +635,9 @@ class c2llvmVisitor(tinycVisitor):
     # Visit a parse tree produced by tinycParser#primaryExpression.
     def visitPrimaryExpression(self, ctx:tinycParser.PrimaryExpressionContext):
         """return val and addr"""
+        if ctx.expression():
+            val = self.visit(ctx.expression())
+            return val, val
         if ctx.IDENTIFIER():
             text = ctx.getText()
             addr = self.symbol_table.getSymbol(text)

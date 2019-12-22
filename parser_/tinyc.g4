@@ -6,7 +6,7 @@ https://cs.wmich.edu/~gupta/teaching/cs4850/sumII06/The%20syntax%20of%20C%20in%2
 grammar tinyc;
 /*------------------------parser------------------------------*/
 program //程序入口
-   : (include|define)* translationUnit+ EOF
+   : (include|define)* translationUnit+ EOF?
    ;
 
 include //include文件 TODO:支持define预编译
@@ -105,15 +105,16 @@ parameterDeclaration //函数参数列表声明
 
 statement //表达式,TODO: 暂时只支持函数和return和{}
     : compoundStatement
-    | returnStatement
+    | jumpStatement
     | expressionStatement
     | iterationStatement
     | selectionStatement
     ;
 
 
-returnStatement
+jumpStatement
     : 'return' expression? ';'
+    |  'continue' ';'
     ;
 
 expressionStatement
@@ -233,6 +234,7 @@ primaryExpression
     : IDENTIFIER
     | mString
     | CONSTANT
+    |   '(' expression ')'
     ;
 
 /*------------------------lexer------------------------------*/

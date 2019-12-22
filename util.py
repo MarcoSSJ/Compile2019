@@ -124,3 +124,12 @@ def whether_is_true(builder, inval):
     """
     var = builder.icmp_unsigned('!=', inval, LLVMTypes.bool(0))
     return var
+
+def arr_to_llvm_pointer(builder, val):
+    """暂时只支持int arr"""
+    zero = ir.Constant(LLVMTypes.int, 0)
+    print("var type", val, val.type)
+    tmp = builder.alloca(val.type)
+    builder.store(val, tmp)
+    gep = builder.gep(tmp, [zero, zero])
+    return gep
