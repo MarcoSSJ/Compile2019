@@ -21,11 +21,13 @@ printf("test success!\n");
 }else{
 printf("test failed!\n");
 }
+return;
 }
 void testPalindrome(char s[], int gt){
 printf("--new palindrome test start:\n");
 int output = isPalindrome(s);
 assertTest(output, gt);
+return;
 }
 void unittest(){
 printf("*******palindrome test*********\n");
@@ -37,6 +39,7 @@ testPalindrome("aaaaaaaaa", TRUE);
 testPalindrome("aaaabaaaa", TRUE);
 testPalindrome("aaabaaaa", FALSE);
 printf("%d",ADD(1,2,3));
+return;
 }
 int main(){
 unittest();
