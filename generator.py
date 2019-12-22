@@ -72,8 +72,8 @@ def main(filename, output):
 
 
 
-filename = 'test/palindrome.c'
+filename = 'test/kmp.c'
 temp = 'temp.c'
 output = 'output.ll'
-preCompile(filename, temp)
+# preCompile(filename, temp)
 main(temp, output)

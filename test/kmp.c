@@ -1,11 +1,6 @@
 // chuchong 
 // usage: using kmp to check whether a string is a substring of another
 // only support string less than 50 letters
-#include <stdio.h>
-#define TRUE 1
-#define FALSE 0
-#define NOTSUBSTR -1
-#define MAXSIZE 50
 int strLen(char s[]){
     int i;
     for(i = 0; s[i]; i++);
@@ -18,6 +13,7 @@ void assertTest(int in, int gt){
     }else{
         printf("test failed!\n");
     }
+    return;
 }
 
 void calNext(char s[], int next[]){
@@ -27,7 +23,7 @@ void calNext(char s[], int next[]){
     len = strLen(s);
 
     next[0] = -1;
-    while(i < len - 1){
+    for(;i < len - 1;){
         if(j == -1 || s[i] == s[j]){
             i ++;
             j ++;
@@ -39,6 +35,7 @@ void calNext(char s[], int next[]){
             i = next[i];
         }
     }
+    return;
 }
 
 int firstIndexOf(char s[], char substr[]){
@@ -47,42 +44,53 @@ int firstIndexOf(char s[], char substr[]){
     int j = 0;
     int subLen = strLen(substr);
     int len = strLen(s);
-    int next[MAXSIZE];
+    int next[50];
+
+    for(int k = 0; k < subLen; k ++){
+        next[k] = 0;
+    }
+
     calNext(substr, next);
 
-    while(j < len){
+    for(int k = 0; k < subLen; k ++){
+        printf("next [] %d  = %d\n", k , next[k]);
+    }
+
+    for(;j < len;){
         if (substr[i] == s[j]){
             i ++;
             j ++;
         }else{
             if(next[i] != -1){
                 i = next[i];
-                continue;
+//                continue;
             }
             j ++;
         }
 
-        if (!substr[i]){
+        if (substr[i] == 0){
             return (j - subLen);
         }
     }
 
-    return NOTSUBSTR;
+    return -1;
 }
 
 void testKmp(char s[], char substr[], int gt){
     printf("--new kmp test start:\n");
     int output = firstIndexOf(s, substr);
     assertTest(output, gt);
+    return;
 }
 
 void unittest(){
     printf("*******kmp test*********\n");
     testKmp("aaabaaa", "baaa", 3);
-    testKmp("a", "aa", NOTSUBSTR);
-    testKmp("b", "a", NOTSUBSTR);
-    testKmp("aaaa", "b", NOTSUBSTR);
+    testKmp("a", "aa", -1);
+    testKmp("b", "a", -1);
+    testKmp("aaaa", "b", -1);
     testKmp("aaaa", "aa", 0);
+    return;
 }
 
 int main(){
