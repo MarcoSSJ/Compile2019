@@ -244,7 +244,10 @@ class c2llvmVisitor(tinycVisitor):
         if tpe == self.ARRAY:
             # for size in reversed(arg):
             print('before llvm_type:', llvm_type, arg)
-            llvm_type = ir.ArrayType(element=llvm_type, count=int(arg))
+            if arg:
+                llvm_type = ir.ArrayType(element=llvm_type, count=int(arg))
+            else:
+                llvm_type = llvm_type
             print('llvm_type:', llvm_type, arg)
             return tpe, name, llvm_type, []
         else:
@@ -280,9 +283,9 @@ class c2llvmVisitor(tinycVisitor):
                 if len(ctx.children) == 4:
                     try:
                         arraynum = int(ctx.constantExpression().getText())
-                        # llvm_type = ir.PointerType(old_type)
-                        # print('return ARRAY', self.ARRAY, arrayname, llvm_type, arraynum)
-                        return self.ARRAY, arrayname, old_type, arraynum
+                        llvm_type = ir.PointerType(old_type)
+                        print('return ARRAY', self.ARRAY, arrayname, llvm_type, arraynum)
+                        return self.ARRAY, arrayname, llvm_type, arraynum
                     except:
                         raise Exception('only constant value are supported')
                 else:

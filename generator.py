@@ -48,7 +48,7 @@ def main(filename, output):
         f.write(repr(my_visitor.module))
 
 
-filename = 'test/array.c'
+filename = 'test/palindrome.c'
 temp = 'temp.c'
 output = 'output.ll'
 #preCompile(filename, temp)
