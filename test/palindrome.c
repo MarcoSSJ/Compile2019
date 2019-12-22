@@ -1,10 +1,5 @@
 // chuchong 
-// usage: to check thether a string is palindrome 
-#include <stdio.h>
-#define TRUE 1
-#define FALSE 0
-#define ADD(a,b,c) a+b+c
-
+// usage: to check thether a string is palindrome
 
 int strLen(char s[]){
     int i;
@@ -18,9 +13,9 @@ int isPalindrome(char s[]){
     len = strLen(s);
     for(i = 0; i < len; i ++){
         if(s[i] != s[len - i - 1])
-            return FALSE;
+            return 0;
     }
-    return TRUE;
+    return 1;
 }
 
 void assertTest(int in, int gt){
@@ -30,26 +25,24 @@ void assertTest(int in, int gt){
         printf("test failed!\n");
     }
     return;
-
 }
 
 void testPalindrome(char s[], int gt){
     printf("--new palindrome test start:\n");
     int output = isPalindrome(s);
     assertTest(output, gt);
-        return;
+    return;
 }
 
 void unittest(){
     printf("*******palindrome test*********\n");
-    testPalindrome("", TRUE);
-    testPalindrome("a", TRUE);
-    testPalindrome("aa", TRUE);
-    testPalindrome("ab", FALSE);
-    testPalindrome("aaaaaaaaa", TRUE);
-    testPalindrome("aaaabaaaa", TRUE);
-    testPalindrome("aaabaaaa", FALSE);
-    printf("%d",ADD(1,2,3));
+    testPalindrome("", 1);
+    testPalindrome("a", 1);
+    testPalindrome("aa", 1);
+    testPalindrome("ab", 0);
+    testPalindrome("aaaaaaaaa", 1);
+    testPalindrome("aaaabaaaa", 1);
+    testPalindrome("aaabaaaa", 0);
     return;
 }
 

@@ -64,7 +64,7 @@ class c2llvmVisitor(tinycVisitor):
             llvm_func = ir.Function(self.module, func_type, name=func_name)
             print("func is", func_name, func_type)
             self.symbol_table.addSymbol(func_name, llvm_func)
-            self.builder = ir.IRBuilder(llvm_func.append_basic_block(name=".entry"))
+            self.builder = ir.IRBuilder(llvm_func.append_basic_block(name=".entry"+func_name))
         self.symbol_table.enterScope()
         for arg, llvm_arg in zip(arg_names, llvm_func.args):
             print('func add argname', arg, llvm_arg)
@@ -419,22 +419,30 @@ class c2llvmVisitor(tinycVisitor):
                 args = []
                 if len(ctx.children) == 4:
                     args = self.visit(ctx.argumentExpressionList())
-                #TODO 类型转换
-                print('left', left_exp)
-                print('args', args)
-                return self.builder.call(left_exp, args), None
+                converted_args = []
+                # TODO 类型转换
+                for arg, param in zip(args, left_exp.args):
+                    if (type(arg.type) is ir.ArrayType) and \
+                            (type(param.type) is ir.PointerType):
+                        arg = arr_to_llvm_pointer(self.builder, arg)
+                        converted_args.append(arg)
+                    else:
+                        converted_args.append(arg)
+                if len(converted_args) < len(args):  # 考虑变长参数
+                    converted_args += args[len(left_exp.args):]
+                return self.builder.call(left_exp, converted_args), None
             elif op == '[':
 
                 val = self.visit(ctx.expression())
-                if type(left_exp.type) in [ir.ArrayType]:
-                    var = self.builder.extract_value(left_exp, val.constant)
-                    return var, None
+                # if type(left_exp.type) in [ir.ArrayType]:
+                #     var = self.builder.extract_value(left_exp, val.constant)
+                #     return var, None
                 print("postif []the val is ",val, "left " , addr)
                 addr = self.builder.gep(addr, [val])
                 print("addr is ",addr)
 
                 var = self.builder.load(addr)
-                return var, None
+                return var, addr
             elif op == '++':
                 one = left_exp.type(1)
                 print('one', one)
@@ -588,8 +596,8 @@ class c2llvmVisitor(tinycVisitor):
         if len(ctx.children) == 1:
             return self.visit(ctx.logicalAndExpression())
         else:
-            lhs, laddr = ir.IntType(1)(self.visit(ctx.children[0]))
-            rhs, raddr = ir.IntType(1)(self.visit(ctx.children[2]))
+            lhs = ir.IntType(1)(self.visit(ctx.children[0])[0])
+            rhs = ir.IntType(1)(self.visit(ctx.children[2])[0])
             result = self.builder.alloca(ir.IntType(1))
             with self.builder.if_else(lhs) as (then, otherwise):
                 with then:

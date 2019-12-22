@@ -70,10 +70,16 @@ def main(filename, output):
     with open(output, "w") as f:
         f.write(repr(my_visitor.module))
 
+filename1 = 'test/palindrome.c'
+output = 'output1.ll'
+# preCompile(filename, temp)
+main(filename1 , output)
 
+print("===========================")
+print("===========================")
+print("===========================")
 
 filename = 'test/kmp.c'
-temp = 'temp.c'
 output = 'output.ll'
 # preCompile(filename, temp)
-main(temp, output)
+main(filename , output)
