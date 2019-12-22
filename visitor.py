@@ -433,12 +433,20 @@ class c2llvmVisitor(tinycVisitor):
                 return self.builder.call(left_exp, converted_args), None
             elif op == '[':
 
-                val = self.visit(ctx.expression())
+                idx = self.visit(ctx.expression())
                 # if type(left_exp.type) in [ir.ArrayType]:
                 #     var = self.builder.extract_value(left_exp, val.constant)
                 #     return var, None
-                print("postif []the val is ",val, "left " , addr)
-                addr = self.builder.gep(addr, [val])
+                zero = ir.Constant(LLVMTypes.int, 0)
+                if type(left_exp) is ir.Argument:
+                    array_indices = [idx]
+                else:
+                    array_indices = [zero, idx]
+                print("postif []the val is ",idx, "left " , addr)
+                addr = self.builder.gep(addr, array_indices)
+                # tmp = self.builder.alloca(val.type)
+                # self.builder.store(val, tmp)
+                # addr = self.builder.gep(tmp, [val])
                 print("addr is ",addr)
 
                 var = self.builder.load(addr)
@@ -584,7 +592,9 @@ class c2llvmVisitor(tinycVisitor):
             lhs, laddr = ir.IntType(1)(self.visit(ctx.children[0]))
             rhs, raddr = ir.IntType(1)(self.visit(ctx.children[2]))
             result = self.builder.alloca(ir.IntType(1))
-            with self.builder.if_else(lhs) as (then, otherwise):
+            converted = whether_is_true(self.builder, lhs)
+            cond = LLVMTypes.bool(converted.get_reference())
+            with self.builder.if_else(cond) as (then, otherwise):
                 with then:
                     self.builder.store(rhs, result)
                 with otherwise:
@@ -596,10 +606,12 @@ class c2llvmVisitor(tinycVisitor):
         if len(ctx.children) == 1:
             return self.visit(ctx.logicalAndExpression())
         else:
-            lhs = ir.IntType(1)(self.visit(ctx.children[0])[0])
-            rhs = ir.IntType(1)(self.visit(ctx.children[2])[0])
+            lhs = (self.visit(ctx.children[0])[0])
+            rhs = (self.visit(ctx.children[2])[0])
             result = self.builder.alloca(ir.IntType(1))
-            with self.builder.if_else(lhs) as (then, otherwise):
+            converted = whether_is_true(self.builder, lhs)
+            cond = LLVMTypes.bool(converted.get_reference())
+            with self.builder.if_else(cond) as (then, otherwise):
                 with then:
                     self.builder.store(ir.IntType(1)(0), result)
                 with otherwise:

@@ -80,6 +80,6 @@ print("===========================")
 print("===========================")
 
 filename = 'test/kmp.c'
-output = 'output.ll'
+output = 'output2.ll'
 # preCompile(filename, temp)
 main(filename , output)
