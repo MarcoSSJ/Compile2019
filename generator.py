@@ -71,12 +71,17 @@ def main(filename, output):
         f.write(repr(my_visitor.module))
 #
 
-palindrome = 'test/palindrome.c'
-array = 'test/array2.c'
-kmp = 'test/kmp.c'
+test = "test.c"
+output = "output0.ll"
+main(test, output)
 
+palindrome = 'test/palindrome.c'
+array = 'test/array.c'
+kmp = 'test/kmp.c'
+output1 = "output1.ll"
+main(palindrome, output1)
 filename = 'test/palindrome.c'
 # temp = 'temp.c'
-output = 'output.ll'
+output2 = 'output2.ll'
 # preCompile(filename, temp)
-main(array, output)
+main(array, output2)

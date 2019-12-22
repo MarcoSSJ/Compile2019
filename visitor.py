@@ -258,10 +258,12 @@ class c2llvmVisitor(tinycVisitor):
         tpe, name, llvm_type, arg = self.visit(ctx.directDeclarator())
         print('after decl: tpe name ', tpe, name, llvm_type, arg)
         if tpe == self.ARRAY:
-            for size in reversed(arg):
-                print('before llvm_type:', llvm_type, arg)
-                llvm_type = ir.ArrayType(element=llvm_type, count=size)
-                print('llvm_type:', llvm_type, arg)
+            if arg:
+                for size in reversed(arg):
+                    print('before llvm_type:', llvm_type, arg)
+                    llvm_type = ir.ArrayType(element=llvm_type, count=size)
+                    print('llvm_type:', llvm_type, arg)
+                    return tpe, name, llvm_type, []
             return tpe, name, llvm_type, []
         else:
             return tpe, name, llvm_type, arg

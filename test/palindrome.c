@@ -1,15 +1,12 @@
-<<<<<<< Updated upstream
-// chuchong 
+// chuchong
 // usage: to check thether a string is palindrome
 
-=======
-// chuchong // usage: to check thether a string is palindrome
->>>>>>> Stashed changes
 int strLen(char s[]){
-   int i;
-   for(i = 0; s[i]; i++);
-   return i;
+    int i;
+    for(i = 0; s[i]; i++);
+    return i;
 }
+
 int isPalindrome(char s[]){
     int len;
     int i;
@@ -20,16 +17,15 @@ int isPalindrome(char s[]){
     }
     return 1;
 }
+
 void assertTest(int in, int gt){
     if(in == gt){
         printf("test success!\n");
-    }
-    else{
+    }else{
         printf("test failed!\n");
     }
     return;
 }
-<<<<<<< Updated upstream
 
 void testPalindrome(char s[], int gt){
     printf("--new palindrome test start:\n");
@@ -54,8 +50,3 @@ int main(){
     unittest();
     return 0;
 }
-=======
-void testPalindrome(char s[], int gt){    printf("--new palindrome test start:\n");    int output = isPalindrome(s);    assertTest(output, gt);    return;}
-void unittest(){    printf("*******palindrome test*********\n");    testPalindrome("", 1);    testPalindrome("a", 1);    testPalindrome("aa", 1);    testPalindrome("ab", 0);    testPalindrome("aaaaaaaaa", 1);    testPalindrome("aaaabaaaa", 1);    testPalindrome("aaabaaaa", 0);    return;}
-int main(){    unittest();    return 0;}
->>>>>>> Stashed changes
