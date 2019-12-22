@@ -114,6 +114,7 @@ statement //表达式,TODO: 暂时只支持函数和return和{}
 
 returnStatement
     : 'return' expression? ';'
+    | 'continue' ';'
     ;
 
 expressionStatement
