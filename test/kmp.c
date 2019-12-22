@@ -1,88 +1,100 @@
-// chuchong 
+
+// chuchong
 // usage: using kmp to check whether a string is a substring of another
 // only support string less than 50 letters
-#include <stdio.h>
-#define TRUE 1
-#define FALSE 0
-#define NOTSUBSTR -1
-#define MAXSIZE 50
+//
 int strLen(char s[]){
     int i;
     for(i = 0; s[i]; i++);
     return i;
 }
-
-void assertTest(int in, int gt){
+//
+int assertTest(int in, int gt){
     if(in == gt){
         printf("test success!\n");
     }else{
         printf("test failed!\n");
     }
+    return 0;
 }
 
-void calNext(char s[], int next[]){
-    int i = 0;//i to s
-    int j = -1;//j to next
+int calNext(char s[], int next[]){
+    int i = 0;
+    int j = -1;
     int len;
     len = strLen(s);
 
     next[0] = -1;
-    while(i < len - 1){
+    for(;i < len;){
         if(j == -1 || s[i] == s[j]){
             i ++;
             j ++;
-            if(s[i] != s[j])
-                next[i] = j;
-            else
-                next[i] = next[j];
+            next[i] = j;
         }else{
-            i = next[i];
+            j = next[j];
         }
     }
+    return 0;
 }
-
+//
 int firstIndexOf(char s[], char substr[]){
-    // NOTSUBSTR -1: failed
     int i = 0;
     int j = 0;
     int subLen = strLen(substr);
     int len = strLen(s);
-    int next[MAXSIZE];
+    int next[50];
+
+    for(int k = 0; k < subLen; k ++){
+        next[k] = 0;
+    }
+
     calNext(substr, next);
 
-    while(j < len){
+    for(int k = 0; k < subLen; k ++){
+        int val = next[k];
+        printf("next [] %d  = %d\n", k , next[k]);
+    }
+
+    for(;j < len;){
         if (substr[i] == s[j]){
             i ++;
             j ++;
         }else{
             if(next[i] != -1){
                 i = next[i];
-                continue;
+            }else{
+                j ++;
             }
-            j ++;
         }
 
-        if (!substr[i]){
+        if (substr[i] == 0){
             return (j - subLen);
         }
     }
 
-    return NOTSUBSTR;
+    return -1;
 }
 
-void testKmp(char s[], char substr[], int gt){
+int testKmp(char s[], char substr[], int gt){
     printf("--new kmp test start:\n");
     int output = firstIndexOf(s, substr);
     assertTest(output, gt);
+    printf("expected %d got %d", gt, output);
+    return 0;
 }
 
-void unittest(){
+int unittest(){
+    char s[] = "123412341234";
+    int len = strLen(s);
+    int next[50];
+    calNext(s, next)
     printf("*******kmp test*********\n");
-    testKmp("aaabaaa", "baaa", 3);
-    testKmp("a", "aa", NOTSUBSTR);
-    testKmp("b", "a", NOTSUBSTR);
-    testKmp("aaaa", "b", NOTSUBSTR);
+    testKmp("aaababababababaaaaaa", "abababababaaa", 4);
+    testKmp("a", "aa", -1);
+    testKmp("b", "a", -1);
+    testKmp("aaaa", "b", -1);
     testKmp("aaaa", "aa", 0);
+    return 0;
 }
 
 int main(){
