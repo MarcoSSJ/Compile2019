@@ -73,15 +73,17 @@ def main(filename, output):
 
 test = "test.c"
 output = "output0.ll"
-main(test, output)
+# main(test, output)
 
 palindrome = 'test/palindrome.c'
 array = 'test/array.c'
 kmp = 'test/kmp.c'
 output1 = "output1.ll"
-main(palindrome, output1)
+# main(palindrome, output1)
 filename = 'test/palindrome.c'
 # temp = 'temp.c'
 output2 = 'output2.ll'
 # preCompile(filename, temp)
-main(array, output2)
+# main(array, output2)
+output3 = 'output3.ll'
+main(kmp, output3)

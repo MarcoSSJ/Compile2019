@@ -71,7 +71,8 @@ class c2llvmVisitor(tinycVisitor):
             print('func add argname', arg, llvm_arg)
             print(type(llvm_arg))
             self.symbol_table.addSymbol(arg, llvm_arg)
-
+        self.continue_block = None
+        self.break_block = None
         self.visit(ctx.compoundStatement())
         self.symbol_table.exitScope()
         return
@@ -139,21 +140,25 @@ class c2llvmVisitor(tinycVisitor):
             raise Exception("init declarator cannot be a func")
             #TODO: error
         elif tpe == self.ARRAY:
-            addr = self.builder.alloca(llvm_tpe)
-            print('addr', addr, 'llvm_tpe', llvm_tpe)
+            var_type = llvm_tpe
+
             try:
-                self.symbol_table.addSymbol(name, addr)
-                var_name, var_type = name, llvm_tpe
-                print('var_name type', var_name, var_type)
+
+                print('var_name type', name, var_type)
                 if has_init:
                     init_val = self.visit(ctx.initializer())
                     if isinstance(init_val, list):
                         converted_val = ir.Constant(var_type, init_val)
                     else:
+                        var_type = init_val.type
                         converted_val = init_val
-                    print('Array initiaze to ', init_val, type(init_val))
+                        print('Array initiaze to ', init_val, type(init_val))
+                addr = self.builder.alloca(var_type)
+                print('addr', addr, 'llvm_tpe', llvm_tpe)
+                self.symbol_table.addSymbol(name, addr)
+                if has_init:
                     self.builder.store(converted_val, addr)
-                    print('self.builder.module', self.builder.block.instructions)
+                    #print('self.builder.module', self.builder.block.instructions)
             except Exception as e:
                 raise e
 
@@ -189,13 +194,19 @@ class c2llvmVisitor(tinycVisitor):
             else:
                 child_idx += 1
 
+            start_block = self.builder.append_basic_block(name=prefix+".loop_start")
             cond_block = self.builder.append_basic_block(name=prefix+".loop_cond")
             loop_block = self.builder.append_basic_block(name=prefix+".loop_body")
             update_block = self.builder.append_basic_block(name=prefix+".loop_update")
             end_block = self.builder.append_basic_block(name=prefix+".loop_end")
 
+
             last_continue, last_break = self.continue_block, self.break_block
             self.continue_block, self.break_block = update_block, end_block
+
+            self.builder.branch(start_block)
+            self.builder.position_at_start(start_block)
+
             self.builder.branch(cond_block)
             self.builder.position_at_start(cond_block)
 
@@ -214,6 +225,10 @@ class c2llvmVisitor(tinycVisitor):
                 child_idx += 1
                 self.builder.branch(loop_block)
 
+            self.builder.position_at_start(loop_block)
+            self.visit(ctx.statement())
+            self.builder.branch(update_block)
+
             self.builder.position_at_start(update_block)
             if getRuleName(ctx.children[child_idx]) == 'expression':
                 self.visit(ctx.children[child_idx])
@@ -221,9 +236,7 @@ class c2llvmVisitor(tinycVisitor):
             else:
                 child_idx += 1
             self.builder.branch(cond_block)
-            self.builder.position_at_start(loop_block)
-            self.visit(ctx.children[child_idx])
-            self.builder.branch(update_block)
+
             self.builder.position_at_start(end_block)
             self.symbol_table.exitScope()
             self.continue_block = last_continue
@@ -606,13 +619,14 @@ class c2llvmVisitor(tinycVisitor):
             return self.visit(ctx.inclusiveOrExpression())
         else:
             lhs, laddr = ir.IntType(1)(self.visit(ctx.children[0]))
-            rhs, raddr = ir.IntType(1)(self.visit(ctx.children[2]))
             result = self.builder.alloca(ir.IntType(1))
             converted = whether_is_true(self.builder, lhs)
             cond = LLVMTypes.bool(converted.get_reference())
             with self.builder.if_else(cond) as (then, otherwise):
                 with then:
-                    self.builder.store(rhs, result)
+                    rhs, rhs_ptr = self.visit(ctx.inclusiveOrExpression())
+                    converted_rhs = whether_is_true(self.builder,rhs )
+                    self.builder.store(converted_rhs, result)
                 with otherwise:
                     self.builder.store(ir.IntType(1)(0), result)
             return self.builder.load(result), result
@@ -623,15 +637,16 @@ class c2llvmVisitor(tinycVisitor):
             return self.visit(ctx.logicalAndExpression())
         else:
             lhs = (self.visit(ctx.children[0])[0])
-            rhs = (self.visit(ctx.children[2])[0])
             result = self.builder.alloca(ir.IntType(1))
             converted = whether_is_true(self.builder, lhs)
             cond = LLVMTypes.bool(converted.get_reference())
             with self.builder.if_else(cond) as (then, otherwise):
                 with then:
-                    self.builder.store(ir.IntType(1)(0), result)
+                    self.builder.store(ir.IntType(1)(1), result)
                 with otherwise:
-                    self.builder.store(rhs, result)
+                    rhs, rhs_ptr = self.visit(ctx.logicalAndExpression())
+                    converted_rhs = whether_is_true(self.builder, rhs)
+                    self.builder.store(converted_rhs, result)
             return self.builder.load(result), result
 
     # Visit a parse tree produced by tinycParser#conditionalExpression.
@@ -654,8 +669,12 @@ class c2llvmVisitor(tinycVisitor):
                     print("why it is not ", addr)
                     #TODO:here is a function parameter bug
                     return addr, addr
-                print(f"{text}addr is ", addr)
-                value = self.builder.load(addr)
+                elif isinstance(addr.type.pointee, ir.ArrayType):
+                    zero = ir.Constant(LLVMTypes.int, 0)
+                    value = self.builder.gep(addr, [zero, zero])
+                else:
+                    print(f"{text}addr is ", addr)
+                    value = self.builder.load(addr)
                 return value, addr
             else:
                 raise Exception('the identifier should be defined first')
@@ -667,17 +686,18 @@ class c2llvmVisitor(tinycVisitor):
             strlen = len(text) + 1
             print(f'strlen {strlen}')
             string = get_const_from_str('string', text)
-            print(string)
-            const = ir.GlobalVariable(self.module, ir.ArrayType(LLVMTypes.int8,strlen), ".str%d"%idx)
-            const.global_constant = True
-            const.initializer = string
-            zero = ir.Constant(LLVMTypes.int32, 0)
-            first = self.builder.gep(const, [zero,zero], inbounds=True)
-            return first, first
+            # print(string)
+            # const = ir.GlobalVariable(self.module, ir.ArrayType(LLVMTypes.int8,strlen), ".str%d"%idx)
+            # const.global_constant = True
+            # const.initializer = string
+            # zero = ir.Constant(LLVMTypes.int32, 0)
+            # first = ir.Constant(ir.ArrayType, bytearray( ,'ascii'))
+            return string, string
         elif ctx.CONSTANT():
             text = ctx.getText()
             print('const', text)
-            return get_const_from_str('int', text), None
+            const = get_const_from_str('int', text)
+            return const, None
 
     def visitMString(self, ctx:tinycParser.MStringContext):
         """ 将string或者char里面的\n修改了"""
