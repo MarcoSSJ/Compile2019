@@ -20,6 +20,7 @@ class preCompiler(tinycVisitor):
         self.f = open(output, 'w')
         self.define = []
         self.find_params = False ##using when find a macro func
+        self.macroflag = False
         pass
 
     def StringCtx(self, ctx):
@@ -183,12 +184,15 @@ class preCompiler(tinycVisitor):
             mlist = self.table.table.get(text)
             if mlist and len(ctx.children) == 4:
                 self.find_params = True
+                self.macroflag = True
                 arglist = self.visit(ctx.argumentExpressionList())
                 mlist = self.table.table.get(text)
                 s = mlist.complicateTokenStream(arglist)
                 self.find_params = False
+                self.macroflag = False
                 return s
             else:
+                self.macroflag = False
                 return self.StringCtx(ctx)
         else:
             return self.StringCtx(ctx)
@@ -196,7 +200,7 @@ class preCompiler(tinycVisitor):
 
     # Visit a parse tree produced by tinycParser#argumentExpressionList.
     def visitArgumentExpressionList(self, ctx:tinycParser.ArgumentExpressionListContext):
-        if self.find_params:
+        if self.find_params and self.macroflag:
             if len(ctx.children) == 1:
                 arg_list = []
             else:

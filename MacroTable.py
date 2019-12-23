@@ -15,9 +15,9 @@ class MacroList():
             for token in self.tokens:
                 idx = self.params.get(token)
                 if idx is None:
-                    s += token
+                    s += token + ' '
                 else:
-                    s += params[idx] #匹配到了相应的IDENTIFIER,进行值替换
+                    s += params[idx] + ' ' #匹配到了相应的IDENTIFIER,进行值替换
             return s
 
 class MacroTable():
